@@ -22,7 +22,7 @@ public class CertificateLinksCreatorImpl implements LinksCreator<CertificateDto>
     private static final int DEFAULT_PAGE_SIZE = 10;
 
     @Override
-    public CertificateDto createForSingleEntity(CertificateDto certificateDto) {
+    public void createForSingleEntity(CertificateDto certificateDto) {
         long certificateId = certificateDto.getId();
         certificateDto.add(
                 linkTo(methodOn(CertificateController.class).getById(certificateId)).withRel(GET_CERTIFICATE),
@@ -31,12 +31,10 @@ public class CertificateLinksCreatorImpl implements LinksCreator<CertificateDto>
                         null, null, null)).withRel(ALL_CERTIFICATES),
                 linkTo(methodOn(CertificateController.class).add(new CertificateDto())).withRel(CREATE_CERTIFICATE)
         );
-
-        return certificateDto;
     }
 
     @Override
-    public List<CertificateDto> createForListEntities(List<CertificateDto> certificatesDto) {
+    public void createForListEntities(List<CertificateDto> certificatesDto) {
         for (CertificateDto concreteCertificateDto : certificatesDto) {
             long certificateId = concreteCertificateDto.getId();
             concreteCertificateDto.add(
@@ -44,14 +42,12 @@ public class CertificateLinksCreatorImpl implements LinksCreator<CertificateDto>
                     linkTo(methodOn(CertificateController.class).deleteById(certificateId)).withRel(DELETE_CERTIFICATE)
             );
         }
-
-        return certificatesDto;
     }
 
     @Override
     public List<Link> createByEntityId(long certificateId) {
         List<Link> links = new ArrayList<>();
-        links.add(linkTo(methodOn(CertificateController.class).deleteById(certificateId)).withRel(DELETE_CERTIFICATE));
+        links.add(linkTo(methodOn(CertificateController.class).deleteById(certificateId)).withSelfRel());
         links.add(linkTo(methodOn(CertificateController.class).getById(certificateId)).withRel(GET_CERTIFICATE));
         links.add(linkTo(methodOn(CertificateController.class).add(new CertificateDto())).withRel(CREATE_CERTIFICATE));
         links.add(linkTo(methodOn(CertificateController.class).getFilteredList(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE,

@@ -22,7 +22,7 @@ public class OrderLinksCreatorImpl implements LinksCreator<OrderDto> {
     private static final String CREATE_ORDER = "createOrder";
 
     @Override
-    public OrderDto createForSingleEntity(OrderDto orderDto) {
+    public void createForSingleEntity(OrderDto orderDto) {
         long orderId = orderDto.getId();
         orderDto.add(
                 linkTo(methodOn(OrderController.class).getById(orderId)).withRel(GET_ORDER),
@@ -30,12 +30,10 @@ public class OrderLinksCreatorImpl implements LinksCreator<OrderDto> {
                 linkTo(methodOn(OrderController.class).getAll(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(ALL_ORDERS),
                 linkTo(methodOn(OrderController.class).add(new OrderDto())).withRel(CREATE_ORDER)
         );
-
-        return orderDto;
     }
 
     @Override
-    public List<OrderDto> createForListEntities(List<OrderDto> ordersDto) {
+    public void createForListEntities(List<OrderDto> ordersDto) {
         for (OrderDto dto : ordersDto) {
             long orderId = dto.getId();
             dto.add(
@@ -43,8 +41,6 @@ public class OrderLinksCreatorImpl implements LinksCreator<OrderDto> {
                     linkTo(methodOn(OrderController.class).deleteById(orderId)).withRel(DELETE_ORDER)
             );
         }
-
-        return ordersDto;
     }
 
     @Override

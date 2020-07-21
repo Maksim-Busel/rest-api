@@ -15,7 +15,7 @@ public class RoleDaoImpl implements RoleDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    private static final String FIND_BY_USERNAME = "SELECT roles.id, roles.name FROM roles WHERE name=:roleName";
+    private static final String FIND_BY_USERNAME = "SELECT r.id, r.name FROM roles r WHERE name=:roleName";
 
     @Autowired
     public RoleDaoImpl(EntityManager entityManager) {

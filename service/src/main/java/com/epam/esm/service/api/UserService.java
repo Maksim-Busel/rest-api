@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService extends Service<User> {
 
-    User register(User user);
+    User add(User user);
 
     List<Order> getUserOrdersByUserId(long userId, int pageNumber, int pageSize);
 
@@ -18,6 +18,4 @@ public interface UserService extends Service<User> {
     User getUserWithLargestAmountOrders(boolean userLockAllowed, boolean orderLockAllowed);
 
     List<User> getAll(int pageNumber, int pageSize);
-
-    List<User> getAll(int pageNumber, int pageSize, boolean exceptionIfNotFound);
 }

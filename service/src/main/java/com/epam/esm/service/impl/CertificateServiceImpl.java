@@ -4,11 +4,15 @@ import com.epam.esm.dao.api.CertificateDao;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateDuration;
-import com.epam.esm.exception.*;
+import com.epam.esm.exception.CertificateParametersException;
+import com.epam.esm.exception.IncorrectDataException;
+import com.epam.esm.exception.ParameterException;
+import com.epam.esm.exception.ThereIsNoSuchCertificateException;
 import com.epam.esm.service.api.CertificateService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.validator.CertificateValidator;
 import com.epam.esm.validator.Validator;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,19 +27,18 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.isNoneBlank;
 
 @Service
-public class CertificateServiceImpl implements CertificateService {
-    private final CertificateDao dao;
-    private final CertificateValidator certificateValidator;
+public class CertificateServiceImpl extends AbstractService<Certificate> implements CertificateService {
     private final Validator<BikeGoods> bikeGoodsValidator;
-    private final OffsetCalculator offsetCalculator;
+    private final CertificateDao certificateDao;
+    private final CertificateValidator certificateValidator;
 
     @Autowired
-    public CertificateServiceImpl(CertificateDao dao, CertificateValidator certificateValidator,
+    public CertificateServiceImpl(CertificateDao certificateDao, CertificateValidator certificateValidator,
                                   Validator<BikeGoods> bikeGoodsValidator, OffsetCalculator offsetCalculator) {
-        this.dao = dao;
-        this.certificateValidator = certificateValidator;
+        super(certificateValidator, certificateDao, offsetCalculator);
         this.bikeGoodsValidator = bikeGoodsValidator;
-        this.offsetCalculator = offsetCalculator;
+        this.certificateValidator = certificateValidator;
+        this.certificateDao = certificateDao;
     }
 
     @Override
@@ -44,80 +47,36 @@ public class CertificateServiceImpl implements CertificateService {
         certificateValidator.validate(certificate);
         certificate.setDateCreation(LocalDate.now());
 
-        try {
-            return dao.create(certificate);
-        } catch (DataIntegrityViolationException e) {
-            throw new IncorrectDataException("Certificate with: " + certificate.getName() + " name already exists.");
-        }
-    }
-
-    @Override
-    public Certificate getById(long id, boolean exceptionIfNotFound) {
-        certificateValidator.validateIdValue(id);
-
-        try {
-            return dao.findById(id);
-        } catch (EmptyResultDataAccessException e) {
-
-            if (exceptionIfNotFound) {
-                throw new ThereIsNoSuchCertificateException("Certificate: " + id + " doesn't exist", e);
-            }
-            return null;
-        }
-    }
-
-    @Override
-    public Certificate getById(long id) {
-        return this.getById(id, true);
+        return dao.create(certificate);
     }
 
     @Override
     public List<Certificate> getFilteredList(String tagFieldValue, String searchBy, String sortBy,
                                              int pageNumber, int pageSize) {
 
-        certificateValidator.validatePageParameters(pageNumber, pageSize);
+        validator.validatePageParameters(pageNumber, pageSize);
         int offset = offsetCalculator.calculate(pageNumber, pageSize);
 
         try {
-            List<Certificate> certificates = dao.findFiltered(tagFieldValue, searchBy, sortBy, offset, pageSize);
+            return certificateDao.findFiltered(tagFieldValue, searchBy, sortBy, offset, pageSize);
 
-            if (certificates.size() == 0) {
-                throw new ThereIsNoSuchCertificateException("Not found any certificates for your request");
-            }
-
-            return certificates;
         } catch (InvalidDataAccessResourceUsageException e) {
             throw new ParameterException("Incorrect filtering parameters. Change the parameters and try again.");
         } catch (EmptyResultDataAccessException e) {
-            throw new ThereIsNoSuchBikeGoodsException("Goods you specified does not exist", e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void lock(long id) {
-        certificateValidator.validateExcitingEntityById(id);
-        int result = dao.lockById(id);
-
-        if (result == 0) {
-            throw new FailedOperationException("Failed to delete certificate");
+            throw new ThereIsNoSuchCertificateException("Certificate you specified does not exist", e);
         }
     }
 
     @Override
     @Transactional
     public Certificate edit(Certificate updatedCertificate) {
-        certificateValidator.validate(updatedCertificate);
-        Certificate originCertificate = getById(updatedCertificate.getId());
+        validator.validate(updatedCertificate);
 
+        Certificate originCertificate = getById(updatedCertificate.getId());
         updatedCertificate.setDateModification(LocalDate.now());
         updatedCertificate.setDateCreation(originCertificate.getDateCreation());
 
-        try {
-            return dao.update(updatedCertificate);
-        } catch (DataIntegrityViolationException e) {
-            throw new IncorrectDataException("Certificate with: " + updatedCertificate.getName() + " name already exists.");
-        }
+        return certificateDao.update(updatedCertificate);
     }
 
     @Override
@@ -126,11 +85,11 @@ public class CertificateServiceImpl implements CertificateService {
         if (bikeGoodsId.length == 0) {
             throw new IncorrectDataException("You don't specify any bike goods id");
         }
-        certificateValidator.validateExcitingEntityById(certificateId);
+        validator.validateExistenceEntityById(certificateId);
 
         for (long goodsId : bikeGoodsId) {
-            bikeGoodsValidator.validateExcitingEntityById(goodsId);
-            int result = dao.createCertificateBikeGoods(certificateId, goodsId);
+            bikeGoodsValidator.validateExistenceEntityById(goodsId);
+            int result = certificateDao.createCertificateBikeGoods(certificateId, goodsId);
 
             if (result == 0) {
                 throw new CertificateParametersException("Failed to use certificate to purchase goods");
@@ -141,10 +100,10 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public BigDecimal getCostCertificates(List<Integer> certificatesId) {
         for (long id : certificatesId) {
-            certificateValidator.validateExcitingEntityById(id);
+            validator.validateExistenceEntityById(id);
         }
 
-        return dao.findCostCertificates(certificatesId);
+        return certificateDao.findCostCertificates(certificatesId);
     }
 
     @Override
@@ -155,34 +114,25 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         for (int id : tagsId) {
-            bikeGoodsValidator.validateExcitingEntityById(id);
+            bikeGoodsValidator.validateExistenceEntityById(id);
         }
 
         int offset = offsetCalculator.calculate(pageNumber, pageSize);
-        List<Certificate> certificates = dao.findByTagsId(tagsId, tagsCount, offset, pageSize);
-        if (certificates.size() == 0) {
-            throw new ThereIsNoSuchCertificateException("There are no certificates with this list tags");
-        }
-
-        return certificates;
+        return certificateDao.findByTagsId(tagsId, tagsCount, offset, pageSize);
     }
 
     @Override
     @Transactional
     public Certificate editPart(Certificate updatedCertificate) {
         long certificateId = updatedCertificate.getId();
-        certificateValidator.validateExcitingEntityById(certificateId);
+        validator.validateExistenceEntityById(certificateId);
 
         Certificate certificateForEdit = dao.findById(certificateId);
 
         changePartCertificate(certificateForEdit, updatedCertificate);
         certificateForEdit.setDateModification(LocalDate.now());
 
-        try {
-            return dao.create(certificateForEdit);
-        } catch (DataIntegrityViolationException e) {
-            throw new IncorrectDataException("Certificate with: " + updatedCertificate.getName() + " name already exists.");
-        }
+        return certificateDao.update(certificateForEdit);
     }
 
     private void changePartCertificate(Certificate certificateFromDatabase, Certificate changedCertificate) {

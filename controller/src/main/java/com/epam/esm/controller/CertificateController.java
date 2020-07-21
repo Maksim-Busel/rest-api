@@ -6,6 +6,7 @@ import com.epam.esm.entity.Certificate;
 import com.epam.esm.mapper.Mapper;
 import com.epam.esm.service.api.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/certificates", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,12 +35,14 @@ public class CertificateController {
     @ResponseStatus(HttpStatus.CREATED)
     public CertificateDto add(@RequestBody CertificateDto certificateDto) {
         Certificate certificate = mapper.convertToEntity(certificateDto);
-        certificate.setId(0);
 
         Certificate addedCertificate = service.add(certificate);
         CertificateDto certificateDtoFromDb = mapper.convertToDto(addedCertificate);
 
-        return linksCreator.createForSingleEntity(certificateDtoFromDb);
+        linksCreator.createForSingleEntity(certificateDtoFromDb);
+        certificateDtoFromDb.add(linkTo(methodOn(CertificateController.class).add(certificateDto)).withSelfRel());
+
+        return certificateDtoFromDb;
     }
 
     @GetMapping("/info/{id}")
@@ -47,11 +51,14 @@ public class CertificateController {
         Certificate certificate = service.getById(id);
         CertificateDto certificateDto = mapper.convertToDto(certificate);
 
-        return linksCreator.createForSingleEntity(certificateDto);
+        linksCreator.createForSingleEntity(certificateDto);
+        certificateDto.add(linkTo(methodOn(CertificateController.class).getById(id)).withSelfRel());
+
+        return certificateDto;
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.LOCKED)
+    @ResponseStatus(HttpStatus.OK)
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
 
@@ -68,17 +75,21 @@ public class CertificateController {
 
 
     @GetMapping("/info/filter")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<CertificateDto> getFilteredList(@RequestParam(required = false, defaultValue = "1") int pageNumber,
-                                                @RequestParam(required = false, defaultValue = "10") int pageSize,
-                                                @RequestParam(required = false) String tagFieldValue,
-                                                @RequestParam(required = false) String searchBy,
-                                                @RequestParam(required = false) String sortBy) {
+    @ResponseStatus(HttpStatus.OK)
+    public CollectionModel<CertificateDto> getFilteredList(@RequestParam(required = false, defaultValue = "1") int pageNumber,
+                                                           @RequestParam(required = false, defaultValue = "10") int pageSize,
+                                                           @RequestParam(required = false) String tagFieldValue,
+                                                           @RequestParam(required = false) String searchBy,
+                                                           @RequestParam(required = false) String sortBy) {
 
         List<Certificate> certificates = service.getFilteredList(tagFieldValue, searchBy, sortBy, pageNumber, pageSize);
         List<CertificateDto> certificatesDto = mapper.convertAllToDto(certificates);
 
-        return linksCreator.createForListEntities(certificatesDto);
+        linksCreator.createForListEntities(certificatesDto);
+        Link selfLink = linkTo(methodOn(CertificateController.class)
+                .getFilteredList(pageNumber, pageSize, tagFieldValue, searchBy, sortBy)).withSelfRel();
+
+        return CollectionModel.of(certificatesDto, selfLink);
     }
 
     @PutMapping("/{certificateId}")
@@ -90,7 +101,10 @@ public class CertificateController {
         Certificate editedCertificate = service.edit(certificate);
         CertificateDto certificateDtoFromDb = mapper.convertToDto(editedCertificate);
 
-        return linksCreator.createForSingleEntity(certificateDtoFromDb);
+        linksCreator.createForSingleEntity(certificateDtoFromDb);
+        certificateDtoFromDb.add(linkTo(methodOn(CertificateController.class).edit(certificateDto, certificateId)).withSelfRel());
+
+        return certificateDtoFromDb;
     }
 
     @PatchMapping("/{certificateId}")
@@ -102,18 +116,24 @@ public class CertificateController {
         Certificate editedCertificate = service.editPart(certificate);
         CertificateDto certificateDtoFromDb = mapper.convertToDto(editedCertificate);
 
-        return linksCreator.createForSingleEntity(certificateDtoFromDb);
+        linksCreator.createForSingleEntity(certificateDtoFromDb);
+        certificateDtoFromDb.add(linkTo(methodOn(CertificateController.class).editPart(certificateDto, certificateId)).withSelfRel());
+
+        return certificateDtoFromDb;
     }
 
     @GetMapping("/info/filter-by-tags")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<CertificateDto> getByTagsId(@RequestParam(required = false, defaultValue = "1") int pageNumber,
-                                            @RequestParam(required = false, defaultValue = "10") int pageSize,
-                                            @RequestParam List<Integer> goodsId) {
+    @ResponseStatus(HttpStatus.OK)
+    public CollectionModel<CertificateDto> getByTagsId(@RequestParam(required = false, defaultValue = "1") int pageNumber,
+                                                       @RequestParam(required = false, defaultValue = "10") int pageSize,
+                                                       @RequestParam List<Integer> goodsId) {
 
         List<Certificate> certificates = service.findByTagsId(goodsId, pageNumber, pageSize);
         List<CertificateDto> certificatesDto = mapper.convertAllToDto(certificates);
 
-        return linksCreator.createForListEntities(certificatesDto);
+        linksCreator.createForListEntities(certificatesDto);
+        Link selfLink = linkTo(methodOn(CertificateController.class).getByTagsId(pageNumber, pageSize, goodsId)).withSelfRel();
+
+        return CollectionModel.of(certificatesDto, selfLink);
     }
 }

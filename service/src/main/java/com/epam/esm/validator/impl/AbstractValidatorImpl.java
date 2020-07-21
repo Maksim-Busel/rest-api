@@ -22,7 +22,7 @@ public abstract class AbstractValidatorImpl<T extends Identifable> implements Va
     }
 
     @Override
-    public void validateExcitingEntityById(long id) {
+    public void validateExistenceEntityById(long id) {
         validateIdValue(id);
         checkExcitingEntity(id);
     }

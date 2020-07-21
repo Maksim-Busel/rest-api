@@ -2,6 +2,8 @@ package com.epam.esm.handler;
 
 import com.epam.esm.dto.ErrorResponse;
 import com.epam.esm.exception.*;
+import com.epam.esm.exception.JwtAuthenticationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler (DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolationException(Exception exception, WebRequest request) {
+        String message = "Entity with such name already exists.";
+        ErrorResponse error = new ErrorResponse(message, exception.getClass().toString());
+        return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler ({BikeGoodsParametersException.class, CertificateParametersException.class,
                         IncorrectDataException.class, RegistrationException.class, ParameterException.class})

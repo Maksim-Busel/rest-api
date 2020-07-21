@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface UserLinksCreator extends LinksCreator<UserDto>{
 
-    List<OrderDto> createForUserOrders(List<OrderDto> orderDto, long userId);
+    void createForUserOrders(List<OrderDto> orderDto, long userId);
 }

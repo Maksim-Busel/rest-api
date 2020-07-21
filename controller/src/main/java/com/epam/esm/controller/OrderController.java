@@ -6,6 +6,7 @@ import com.epam.esm.entity.Order;
 import com.epam.esm.mapper.Mapper;
 import com.epam.esm.service.api.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,13 +36,15 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto add(@RequestBody final OrderDto orderDto) {
         Order order = mapper.convertToEntity(orderDto);
-        order.setId(0);
         List<Integer> certificatesId = orderDto.getCertificatesId();
 
         Order addedOrder = service.add(order, certificatesId);
         OrderDto orderDtoFromDb = mapper.convertToDto(addedOrder);
 
-        return linksCreator.createForSingleEntity(orderDtoFromDb);
+        linksCreator.createForSingleEntity(orderDtoFromDb);
+        orderDtoFromDb.add(linkTo(methodOn(OrderController.class).add(orderDto)).withSelfRel());
+
+        return orderDtoFromDb;
     }
 
     @GetMapping("/info/{id}")
@@ -50,22 +53,28 @@ public class OrderController {
         Order order = service.getById(id);
         OrderDto orderDto = mapper.convertToDto(order);
 
-        return linksCreator.createForSingleEntity(orderDto);
+        linksCreator.createForSingleEntity(orderDto);
+        orderDto.add(linkTo(methodOn(OrderController.class).getById(id)).withSelfRel());
+
+        return orderDto;
     }
 
     @GetMapping("/info")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<OrderDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
-                                 @RequestParam(required = false, defaultValue = "10") int pageSize) {
+    @ResponseStatus(HttpStatus.OK)
+    public CollectionModel<OrderDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
+                                            @RequestParam(required = false, defaultValue = "10") int pageSize) {
         List<Order> orders = service.getAll(pageNumber, pageSize);
         List<OrderDto> ordersDto = mapper.convertAllToDto(orders);
 
-        return linksCreator.createForListEntities(ordersDto);
+        linksCreator.createForListEntities(ordersDto);
+        Link selfLink = linkTo(methodOn(OrderController.class).getAll(pageNumber, pageSize)).withSelfRel();
+
+        return CollectionModel.of(ordersDto, selfLink);
     }
 
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.LOCKED)
+    @ResponseStatus(HttpStatus.OK)
     public List<Link> deleteById(@PathVariable long id) {
         service.getById(id);
         service.lock(id);

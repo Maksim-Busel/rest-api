@@ -1,6 +1,5 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.creator.UserLinksCreator;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
@@ -9,12 +8,12 @@ import com.epam.esm.entity.User;
 import com.epam.esm.mapper.Mapper;
 import com.epam.esm.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -40,12 +39,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto register(@RequestBody final UserDto userDto) {
         User user = userMapper.convertToEntity(userDto);
-        user.setId(0);
 
-        User addedUser = service.register(user);
+        User addedUser = service.add(user);
         UserDto userDtoFromDb = userMapper.convertToDto(addedUser);
 
-        return linksCreator.createForSingleEntity(userDtoFromDb);
+        linksCreator.createForSingleEntity(userDtoFromDb);
+        userDtoFromDb.add(linkTo(methodOn(UserController.class).register(userDto)).withSelfRel());
+
+        return userDtoFromDb;
     }
 
     @GetMapping("/info/{id}")
@@ -54,22 +55,28 @@ public class UserController {
         User user = service.getById(id);
         UserDto userDto = userMapper.convertToDto(user);
 
-        return linksCreator.createForSingleEntity(userDto);
+        linksCreator.createForSingleEntity(userDto);
+        userDto.add(linkTo(methodOn(UserController.class).getById(id)).withSelfRel());
+
+        return userDto;
     }
 
     @GetMapping("/info")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<UserDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
-                                @RequestParam(required = false, defaultValue = "10") int pageSize) {
+    @ResponseStatus(HttpStatus.OK)
+    public CollectionModel<UserDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
+                                           @RequestParam(required = false, defaultValue = "10") int pageSize) {
 
         List<User> users = service.getAll(pageNumber, pageSize);
         List<UserDto> usersDto = userMapper.convertAllToDto(users);
 
-        return linksCreator.createForListEntities(usersDto);
+        linksCreator.createForListEntities(usersDto);
+        Link selfLink = linkTo(methodOn(UserController.class).getAll(pageNumber, pageSize)).withSelfRel();
+
+        return CollectionModel.of(usersDto, selfLink);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.LOCKED)
+    @ResponseStatus(HttpStatus.OK)
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
 
@@ -77,15 +84,18 @@ public class UserController {
     }
 
     @GetMapping("/info/{userId}/orders")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<OrderDto> getUserOrders(@PathVariable long userId,
-                                        @RequestParam(required = false, defaultValue = "1") int pageNumber,
-                                        @RequestParam(required = false, defaultValue = "10") int pageSize) {
+    @ResponseStatus(HttpStatus.OK)
+    public CollectionModel<OrderDto> getUserOrders(@PathVariable long userId,
+                                                   @RequestParam(required = false, defaultValue = "1") int pageNumber,
+                                                   @RequestParam(required = false, defaultValue = "10") int pageSize) {
 
         List<Order> orders = service.getUserOrdersByUserId(userId, pageNumber, pageSize);
         List<OrderDto> ordersDto = orderMapper.convertAllToDto(orders);
 
-        return linksCreator.createForUserOrders(ordersDto, userId);
+        linksCreator.createForUserOrders(ordersDto, userId);
+        Link selfLink = linkTo(methodOn(UserController.class).getUserOrders(userId, pageNumber, pageSize)).withSelfRel();
+
+        return CollectionModel.of(ordersDto, selfLink);
     }
 
     @GetMapping("/user/largest-cost-orders")
@@ -94,6 +104,9 @@ public class UserController {
         User user = service.getUserWithLargestAmountOrders();
         UserDto userDto = userMapper.convertToDto(user);
 
-        return linksCreator.createForSingleEntity(userDto);
+        linksCreator.createForSingleEntity(userDto);
+        userDto.add(linkTo(methodOn(UserController.class).getUserWithLargestAmountOrders()).withSelfRel());
+
+        return userDto;
     }
 }

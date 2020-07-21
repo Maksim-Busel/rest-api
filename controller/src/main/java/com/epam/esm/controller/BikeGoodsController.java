@@ -6,12 +6,16 @@ import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.mapper.Mapper;
 import com.epam.esm.service.api.BikeGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/bike-goods", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -31,12 +35,14 @@ public class BikeGoodsController{
     @ResponseStatus(HttpStatus.CREATED)
     public BikeGoodsDto add(@RequestBody BikeGoodsDto goodsDto) {
         BikeGoods goods = mapper.convertToEntity(goodsDto);
-        goods.setId(0);
 
         BikeGoods addedBikeGoods = service.add(goods);
         BikeGoodsDto bikeGoodsDto = mapper.convertToDto(addedBikeGoods);
 
-        return linksCreator.createForSingleEntity(bikeGoodsDto);
+        linksCreator.createForSingleEntity(bikeGoodsDto);
+        bikeGoodsDto.add(linkTo(methodOn(BikeGoodsController.class).add(goodsDto)).withSelfRel());
+
+        return bikeGoodsDto;
     }
 
     @GetMapping("/info/{id}")
@@ -45,21 +51,27 @@ public class BikeGoodsController{
         BikeGoods goods = service.getById(id);
         BikeGoodsDto bikeGoodsDto = mapper.convertToDto(goods);
 
-        return linksCreator.createForSingleEntity(bikeGoodsDto);
+        linksCreator.createForSingleEntity(bikeGoodsDto);
+        bikeGoodsDto.add(linkTo(methodOn(BikeGoodsController.class).getById(id)).withSelfRel());
+
+        return bikeGoodsDto;
     }
 
     @GetMapping("/info")
-    @ResponseStatus(HttpStatus.FOUND)
-    public List<BikeGoodsDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
+    @ResponseStatus(HttpStatus.OK)
+    public CollectionModel<BikeGoodsDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                      @RequestParam(required = false, defaultValue = "10") int pageSize) {
         List<BikeGoods> goods = service.getAll(pageNumber, pageSize);
         List<BikeGoodsDto> bikeGoodsDto = mapper.convertAllToDto(goods);
 
-        return linksCreator.createForListEntities(bikeGoodsDto);
+        linksCreator.createForListEntities(bikeGoodsDto);
+        Link selfLink = linkTo(methodOn(BikeGoodsController.class).getAll(pageNumber, pageSize)).withSelfRel();
+
+        return CollectionModel.of(bikeGoodsDto, selfLink);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.LOCKED)
+    @ResponseStatus(HttpStatus.OK)
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
 

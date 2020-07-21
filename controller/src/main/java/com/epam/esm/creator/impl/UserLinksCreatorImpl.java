@@ -28,7 +28,7 @@ public class UserLinksCreatorImpl implements UserLinksCreator {
     private static final String DELETE_ORDER = "deleteOrder";
 
     @Override
-    public UserDto createForSingleEntity(UserDto userDto) {
+    public void createForSingleEntity(UserDto userDto) {
         long userId = userDto.getId();
         userDto.add(
                 linkTo(methodOn(UserController.class).getById(userId)).withRel(GET_USER),
@@ -37,12 +37,10 @@ public class UserLinksCreatorImpl implements UserLinksCreator {
                 linkTo(methodOn(UserController.class).register(new UserDto())).withRel(REGISTRATION),
                 linkTo(methodOn(UserController.class).getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(USER_ORDERS)
         );
-
-        return userDto;
     }
 
     @Override
-    public List<UserDto> createForListEntities(List<UserDto> usersDto) {
+    public void createForListEntities(List<UserDto> usersDto) {
         for (UserDto dto : usersDto) {
             dto.setPassword(null);
             long userId = dto.getId();
@@ -52,14 +50,12 @@ public class UserLinksCreatorImpl implements UserLinksCreator {
                     linkTo(methodOn(UserController.class).getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(USER_ORDERS)
             );
         }
-
-        return usersDto;
     }
 
     @Override
     public List<Link> createByEntityId(long userId) {
         List<Link> links = new ArrayList<>();
-        links.add(linkTo(methodOn(UserController.class).deleteById(userId)).withRel(DELETE_USER));
+        links.add(linkTo(methodOn(UserController.class).deleteById(userId)).withSelfRel());
         links.add(linkTo(methodOn(UserController.class).getById(userId)).withRel(GET_USER));
         links.add(linkTo(methodOn(UserController.class).register(new UserDto())).withRel(REGISTRATION));
         links.add(linkTo(methodOn(UserController.class).getAll(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(ALL_USERS));
@@ -69,7 +65,7 @@ public class UserLinksCreatorImpl implements UserLinksCreator {
     }
 
     @Override
-    public List<OrderDto> createForUserOrders(List<OrderDto> ordersDto, long userId) {
+    public void createForUserOrders(List<OrderDto> ordersDto, long userId) {
         for (OrderDto dto : ordersDto) {
             long orderId = dto.getId();
             dto.add(
@@ -80,7 +76,5 @@ public class UserLinksCreatorImpl implements UserLinksCreator {
                     linkTo(methodOn(UserController.class).getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withSelfRel()
             );
         }
-
-        return ordersDto;
     }
 }

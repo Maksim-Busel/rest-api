@@ -4,12 +4,13 @@ import com.epam.esm.builder.CertificateQueryBuilder;
 import com.epam.esm.dao.api.CertificateDao;
 import com.epam.esm.entity.Certificate;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -19,9 +20,7 @@ public class CertificateDaoImpl implements CertificateDao {
     private final EntityManager entityManager;
     private final CertificateQueryBuilder builder;
 
-    private static final String FIND_BY_ID = "SELECT * FROM certificate WHERE id=:certificateId AND lock=false";
-    private static final String LOCK_BY_ID = "UPDATE certificate SET lock=true WHERE id=:certificateId";
-    private static final String USE_CERTIFICATE_BUY_BIKE_GOODS = "INSERT INTO certificate_bike_goods " +
+    public static final String USE_CERTIFICATE_BUY_BIKE_GOODS = "INSERT INTO certificate_bike_goods " +
             "(certificate_id, bike_goods_id) VALUES(:certificateId,:bikeGoodsId)";
     private static final String FIND_BY_TAGS_ID = "SELECT c.id, c.name, c.description, c.price, c.date_creation, " +
             "c.date_modification, c.duration FROM certificate c JOIN certificate_bike_goods c_b_g ON id=certificate_id" +
@@ -37,17 +36,14 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Override
     public Certificate create(Certificate certificate) {
-        Session currentSession = entityManager.unwrap(Session.class);
-        currentSession.saveOrUpdate(certificate);
+        entityManager.persist(certificate);
 
         return certificate;
     }
 
     @Override
     public Certificate findById(long id) {
-        Session currentSession = entityManager.unwrap(Session.class);
-
-        Query<Certificate> certificateQuery = currentSession.createNativeQuery(FIND_BY_ID, Certificate.class);
+        TypedQuery<Certificate> certificateQuery = entityManager.createNamedQuery("Certificate.findById", Certificate.class);
         certificateQuery.setParameter("certificateId", id);
 
         return certificateQuery.getSingleResult();
@@ -55,9 +51,7 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Override
     public int lockById(long id) {
-        Session currentSession = entityManager.unwrap(Session.class);
-
-        Query certificateQuery = currentSession.createNativeQuery(LOCK_BY_ID);
+        Query certificateQuery = entityManager.createNamedQuery("Certificate.lockById");
         certificateQuery.setParameter("certificateId", id);
 
         return certificateQuery.executeUpdate();
@@ -65,11 +59,9 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Override
     public List<Certificate> findFiltered(String tagFieldValue, String searchBy, String sortBy, int offset, int pageSize) {
-        Session currentSession = entityManager.unwrap(Session.class);
-
         String queryForFilter = builder.buildQueryForFilter(tagFieldValue, searchBy, sortBy);
 
-        Query<Certificate> certificatesQuery = currentSession.createNativeQuery(queryForFilter, Certificate.class);
+        Query certificatesQuery = entityManager.createNativeQuery(queryForFilter, Certificate.class);
         certificatesQuery.setFirstResult(offset);
         certificatesQuery.setMaxResults(pageSize);
 
@@ -85,9 +77,7 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Override
     public int createCertificateBikeGoods(long certificateId, long bikeGoodsId) {
-        Session currentSession = entityManager.unwrap(Session.class);
-
-        Query certificateBikeGoodsQuery = currentSession.createNativeQuery(USE_CERTIFICATE_BUY_BIKE_GOODS);
+        Query certificateBikeGoodsQuery = entityManager.createNativeQuery(USE_CERTIFICATE_BUY_BIKE_GOODS);
         certificateBikeGoodsQuery.setParameter("certificateId", certificateId);
         certificateBikeGoodsQuery.setParameter("bikeGoodsId", bikeGoodsId);
 
@@ -98,7 +88,7 @@ public class CertificateDaoImpl implements CertificateDao {
     public List<Certificate> findByTagsId(List<Integer> tagsId, int tagsCount, int offset, int pageSize) {
         Session currentSession = entityManager.unwrap(Session.class);
 
-        Query<Certificate> certificatesQuery = currentSession.createNativeQuery(FIND_BY_TAGS_ID, Certificate.class);
+        org.hibernate.query.Query<Certificate> certificatesQuery = currentSession.createNativeQuery(FIND_BY_TAGS_ID, Certificate.class);
         certificatesQuery.setFirstResult(offset);
         certificatesQuery.setMaxResults(pageSize);
         certificatesQuery.setParameterList("goodsId", tagsId);
@@ -111,7 +101,7 @@ public class CertificateDaoImpl implements CertificateDao {
     public BigDecimal findCostCertificates(List<Integer> certificatesId) {
         Session currentSession = entityManager.unwrap(Session.class);
 
-        Query certificateQuery = currentSession.createNativeQuery(FIND_COST_CERTIFICATES);
+        org.hibernate.query.Query certificateQuery = currentSession.createNativeQuery(FIND_COST_CERTIFICATES);
         certificateQuery.setParameterList("certificatesId", certificatesId);
 
         return (BigDecimal) certificateQuery.getSingleResult();

@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface LinksCreator<T extends RepresentationModel<T>> {
 
-    T createForSingleEntity(T entity);
+    void createForSingleEntity(T entity);
 
-    List<T> createForListEntities(List<T> entities);
+    void createForListEntities(List<T> entities);
 
     List<Link> createByEntityId(long entityId);
 

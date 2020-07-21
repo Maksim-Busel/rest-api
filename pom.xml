@@ -6,7 +6,7 @@
         <module>controller</module>
 		<module>repository</module>
 		<module>service</module>
-	</modules>
+    </modules>
 
     <parent>
 		<groupId>org.springframework.boot</groupId>

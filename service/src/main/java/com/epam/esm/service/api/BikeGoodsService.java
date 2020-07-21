@@ -10,6 +10,4 @@ public interface BikeGoodsService extends Service<BikeGoods>{
 
     List<BikeGoods> getAll(int pageNumber, int pageSize);
 
-    List<BikeGoods> getAll(int pageNumber, int pageSize, boolean exceptionIfNotFound);
-
 }

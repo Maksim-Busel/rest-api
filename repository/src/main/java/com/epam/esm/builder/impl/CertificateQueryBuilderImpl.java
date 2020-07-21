@@ -17,8 +17,9 @@ public class CertificateQueryBuilderImpl implements CertificateQueryBuilder {
     private static final String LIKE = " LIKE '%";
     private static final String FIELD_GOODS_TYPE = "goods_type=";
     private static final String ORDER_BY = " ORDER BY ";
-    private static final String ID = " id";
-    private static final String FIND_ALL_DISTINCT_FROM_CERTIFICATES = "SELECT DISTINCT c.* FROM certificate c";
+    private static final String ID = "id";
+    private static final String FIND_ALL_DISTINCT_FROM_CERTIFICATES = "SELECT DISTINCT c.id, c.name, c.description, " +
+            "c.price, c.date_creation, c.date_modification, c.duration FROM certificate c";
     private static final String CERTIFICATE_UNLOCK = " c.lock=false ";
     private static final String EMPTY_STRING = "";
 

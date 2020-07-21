@@ -22,7 +22,7 @@ public class BikeGoodsLinksCreatorImpl implements LinksCreator<BikeGoodsDto> {
     private static final String CREATE_GOODS = "createGoods";
 
     @Override
-    public BikeGoodsDto createForSingleEntity(BikeGoodsDto bikeGoodsDto) {
+    public void createForSingleEntity(BikeGoodsDto bikeGoodsDto) {
         long goodsId = bikeGoodsDto.getId();
         bikeGoodsDto.add(
                 linkTo(methodOn(BikeGoodsController.class).getById(goodsId)).withRel(GET_GOODS),
@@ -30,12 +30,10 @@ public class BikeGoodsLinksCreatorImpl implements LinksCreator<BikeGoodsDto> {
                 linkTo(methodOn(BikeGoodsController.class).getAll(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(ALL_GOODS),
                 linkTo(methodOn(BikeGoodsController.class).add(new BikeGoodsDto())).withRel(CREATE_GOODS)
         );
-
-        return bikeGoodsDto;
     }
 
     @Override
-    public List<BikeGoodsDto> createForListEntities(List<BikeGoodsDto> bikeGoodsDto) {
+    public void createForListEntities(List<BikeGoodsDto> bikeGoodsDto) {
         for (BikeGoodsDto goodsDto : bikeGoodsDto) {
             long goodsId = goodsDto.getId();
             goodsDto.add(
@@ -43,8 +41,6 @@ public class BikeGoodsLinksCreatorImpl implements LinksCreator<BikeGoodsDto> {
                     linkTo(methodOn(BikeGoodsController.class).deleteById(goodsId)).withRel(DELETE_GOODS)
             );
         }
-
-        return bikeGoodsDto;
     }
 
     @Override

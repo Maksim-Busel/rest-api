@@ -14,5 +14,5 @@ public interface Validator <T extends Identifable>{
 
     void validatePageParameters(int pageNumber, int pageSize);
 
-    void validateExcitingEntityById(long entityId);
+    void validateExistenceEntityById(long entityId);
 }

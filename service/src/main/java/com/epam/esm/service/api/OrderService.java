@@ -11,6 +11,4 @@ public interface OrderService extends Service<Order>{
     Order add(Order entity, List<Integer> certificatesId);
 
     List<Order> getAll(int pageNumber, int pageSize);
-
-    List<Order> getAll(int pageNumber, int pageSize, boolean exceptionIfNotFound);
 }
