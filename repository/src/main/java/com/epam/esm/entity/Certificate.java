@@ -15,9 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 @Entity(name = "certificate")
 @NamedQueries({
-        @NamedQuery(name = "Certificate.findById", query = Certificate.QueryNames.FIND_BY_ID),
-        @NamedQuery(name = "Certificate.lockById", query = Certificate.QueryNames.LOCK_BY_ID),
-        @NamedQuery(name = "Certificate.findCostCertificates", query = Certificate.QueryNames.FIND_COST_CERTIFICATES),
+        @NamedQuery(name = Certificate.QueryNames.FIND_BY_ID,
+                    query = "SELECT c FROM certificate c WHERE id=:certificateId AND lock=false"),
+        @NamedQuery(name = Certificate.QueryNames.FIND_BY_NAME,
+                query = "SELECT c FROM certificate c WHERE name=:certificateName"),
+        @NamedQuery(name = Certificate.QueryNames.LOCK_BY_ID,
+                    query = "UPDATE certificate SET lock=true WHERE id=:certificateId"),
 })
 public class Certificate implements Identifable {
 
@@ -46,17 +49,26 @@ public class Certificate implements Identifable {
     private LocalDate dateModification;
 
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
-    List<BikeGoods> goods;
+    private List<BikeGoods> goods;
 
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
-    List<Order> orders;
+    private List<Order> orders;
+
+    public void addGoods(BikeGoods goods){
+        this.goods.add(goods);
+        goods.getCertificates().add(this);
+    }
+
+    public void addOrder(Order order){
+        this.orders.add(order);
+        order.getCertificates().add(this);
+    }
 
 
     public static final class QueryNames {
-        public static final String FIND_BY_ID = "SELECT c FROM certificate c WHERE id=:certificateId AND lock=false";
-        public static final String LOCK_BY_ID = "UPDATE certificate SET lock=true WHERE id=:certificateId";
-        public static final String FIND_COST_CERTIFICATES = "SELECT SUM(price) FROM certificate WHERE lock=false " +
-                "AND id IN :certificatesId";
+        public static final String FIND_BY_ID = "Certificate.findById";
+        public static final String FIND_BY_NAME = "Certificate.findByName";
+        public static final String LOCK_BY_ID = "Certificate.lockById";
 
         public QueryNames() {
         }

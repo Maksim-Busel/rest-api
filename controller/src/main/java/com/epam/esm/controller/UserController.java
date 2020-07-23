@@ -1,5 +1,9 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.dto.BikeGoodsDto;
+import com.epam.esm.entity.BikeGoods;
+import com.epam.esm.security.annotation.IsAdmin;
+import com.epam.esm.security.annotation.IsAnyAuthorized;
 import com.epam.esm.creator.UserLinksCreator;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
@@ -49,8 +53,9 @@ public class UserController {
         return userDtoFromDb;
     }
 
-    @GetMapping("/info/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public UserDto getById(@PathVariable long id) {
         User user = service.getById(id);
         UserDto userDto = userMapper.convertToDto(user);
@@ -61,8 +66,9 @@ public class UserController {
         return userDto;
     }
 
-    @GetMapping("/info")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public CollectionModel<UserDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                            @RequestParam(required = false, defaultValue = "10") int pageSize) {
 
@@ -75,16 +81,34 @@ public class UserController {
         return CollectionModel.of(usersDto, selfLink);
     }
 
+    @PutMapping("/{userId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    @IsAdmin
+    public UserDto edit(@RequestBody UserDto userDto, @PathVariable long userId) {
+        User user = userMapper.convertToEntity(userDto);
+        user.setId(userId);
+
+        User editedUser = service.edit(user);
+        UserDto userDtoFromDb = userMapper.convertToDto(editedUser);
+
+        linksCreator.createForSingleEntity(userDtoFromDb);
+        userDtoFromDb.add(linkTo(methodOn(UserController.class).edit(userDto, userId)).withSelfRel());
+
+        return userDtoFromDb;
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @IsAdmin
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
 
         return linksCreator.createByEntityId(id);
     }
 
-    @GetMapping("/info/{userId}/orders")
+    @GetMapping("/{userId}/orders")
     @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public CollectionModel<OrderDto> getUserOrders(@PathVariable long userId,
                                                    @RequestParam(required = false, defaultValue = "1") int pageNumber,
                                                    @RequestParam(required = false, defaultValue = "10") int pageSize) {
@@ -98,8 +122,9 @@ public class UserController {
         return CollectionModel.of(ordersDto, selfLink);
     }
 
-    @GetMapping("/user/largest-cost-orders")
-    @ResponseStatus(HttpStatus.FOUND)
+    @GetMapping("/filter-user-largest-cost-orders")
+    @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public UserDto getUserWithLargestAmountOrders(){
         User user = service.getUserWithLargestAmountOrders();
         UserDto userDto = userMapper.convertToDto(user);

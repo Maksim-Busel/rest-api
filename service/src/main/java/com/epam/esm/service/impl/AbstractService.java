@@ -3,12 +3,10 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.api.Dao;
 import com.epam.esm.entity.Identifable;
 import com.epam.esm.exception.FailedOperationException;
-import com.epam.esm.exception.IncorrectDataException;
 import com.epam.esm.exception.ThereIsNoSuchEntityException;
 import com.epam.esm.service.api.Service;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.validator.Validator;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 

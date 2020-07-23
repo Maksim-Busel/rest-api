@@ -3,6 +3,7 @@ package com.epam.esm.security.jwt;
 import com.epam.esm.entity.Role;
 import com.epam.esm.exception.JwtAuthenticationException;
 import io.jsonwebtoken.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.isNoneBlank;
 
 @Component
 public class JwtTokenProvider {
@@ -70,7 +73,7 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
 
-        if (bearerToken != null && bearerToken.startsWith(AUTHORIZATION_BEARER)) {
+        if (isNoneBlank(bearerToken) && bearerToken.startsWith(AUTHORIZATION_BEARER)) {
             return bearerToken.substring(7);
         }
 

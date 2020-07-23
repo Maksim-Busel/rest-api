@@ -12,4 +12,5 @@ public interface Dao <T extends Identifable> {
     T findById(long id);
 
     int lockById(long id);
+
 }

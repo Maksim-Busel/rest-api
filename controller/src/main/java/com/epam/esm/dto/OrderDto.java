@@ -15,16 +15,8 @@ import java.util.List;
 public class OrderDto extends RepresentationModel<OrderDto> implements Identifable {
 
     private long id;
-
-    @NonNull
     private long userId;
-
-    @Null
     private LocalDate orderDate;
-
-    @Null
     private BigDecimal priceTotal;
-
-    @NotNull
     private List<Integer> certificatesId;
 }

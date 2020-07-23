@@ -4,6 +4,8 @@ import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.dto.BikeGoodsDto;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.mapper.Mapper;
+import com.epam.esm.security.annotation.IsAdmin;
+import com.epam.esm.security.annotation.IsAnyAuthorized;
 import com.epam.esm.service.api.BikeGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -33,6 +35,7 @@ public class BikeGoodsController{
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @IsAdmin
     public BikeGoodsDto add(@RequestBody BikeGoodsDto goodsDto) {
         BikeGoods goods = mapper.convertToEntity(goodsDto);
 
@@ -45,8 +48,9 @@ public class BikeGoodsController{
         return bikeGoodsDto;
     }
 
-    @GetMapping("/info/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public BikeGoodsDto getById(@PathVariable long id) {
         BikeGoods goods = service.getById(id);
         BikeGoodsDto bikeGoodsDto = mapper.convertToDto(goods);
@@ -57,8 +61,9 @@ public class BikeGoodsController{
         return bikeGoodsDto;
     }
 
-    @GetMapping("/info")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public CollectionModel<BikeGoodsDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                      @RequestParam(required = false, defaultValue = "10") int pageSize) {
         List<BikeGoods> goods = service.getAll(pageNumber, pageSize);
@@ -70,8 +75,25 @@ public class BikeGoodsController{
         return CollectionModel.of(bikeGoodsDto, selfLink);
     }
 
+    @PutMapping("/{bikeGoodsId}")
+    @ResponseStatus(HttpStatus.OK)
+    @IsAdmin
+    public BikeGoodsDto edit(@RequestBody BikeGoodsDto bikeGoodsDto, @PathVariable long bikeGoodsId) {
+        BikeGoods bikeGoods = mapper.convertToEntity(bikeGoodsDto);
+        bikeGoods.setId(bikeGoodsId);
+
+        BikeGoods editedBikeGoods = service.edit(bikeGoods);
+        BikeGoodsDto bikeGoodsDtoFromDb = mapper.convertToDto(editedBikeGoods);
+
+        linksCreator.createForSingleEntity(bikeGoodsDtoFromDb);
+        bikeGoodsDtoFromDb.add(linkTo(methodOn(BikeGoodsController.class).edit(bikeGoodsDto, bikeGoodsId)).withSelfRel());
+
+        return bikeGoodsDtoFromDb;
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @IsAdmin
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
 

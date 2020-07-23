@@ -13,10 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 @Entity(name = "users")
 @NamedQueries({
-        @NamedQuery(name = "User.findAll", query = User.QueryNames.FIND_ALL),
-        @NamedQuery(name = "User.findById", query = User.QueryNames.FIND_BY_ID),
-        @NamedQuery(name = "User.lockById", query = User.QueryNames.LOCK_BY_ID),
-        @NamedQuery(name = "User.findByUsername", query = User.QueryNames.FIND_BY_USERNAME),
+        @NamedQuery(name = User.QueryNames.FIND_ALL,
+                    query = "SELECT u FROM users u WHERE lock=false ORDER BY id"),
+        @NamedQuery(name = User.QueryNames.FIND_BY_ID,
+                    query = "SELECT u FROM users u WHERE id=:userId AND lock=false"),
+        @NamedQuery(name = User.QueryNames.LOCK_BY_ID,
+                    query = "UPDATE users SET lock=true WHERE id=:userId"),
+        @NamedQuery(name = User.QueryNames.FIND_BY_USERNAME,
+                    query = "SELECT u FROM users u WHERE username=:username AND lock=false"),
 })
 public class User implements Identifable{
 
@@ -42,10 +46,10 @@ public class User implements Identifable{
 
 
     public static final class QueryNames {
-        public static final String FIND_BY_ID = "SELECT u FROM users u WHERE id=:userId AND lock=false";
-        public static final String FIND_ALL = "SELECT u FROM users u WHERE lock=false ORDER BY id";
-        public static final String LOCK_BY_ID = "UPDATE users SET lock=true WHERE id=:userId";
-        public static final String FIND_BY_USERNAME = "SELECT u FROM users u WHERE username=:username AND lock=false";
+        public static final String FIND_BY_ID = "User.findById";
+        public static final String FIND_ALL = "User.findAll";
+        public static final String LOCK_BY_ID = "User.lockById";
+        public static final String FIND_BY_USERNAME = "User.findByUsername";
 
         public QueryNames() {
         }

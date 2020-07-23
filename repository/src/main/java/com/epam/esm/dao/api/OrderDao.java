@@ -8,8 +8,6 @@ public interface OrderDao extends Dao<Order>{
 
     List<Order> findOrdersByUserId(long userId, int offset, int pageSize);
 
-    int createCertificateOrders(long certificateId, long orderId);
-
     List<Order> findAll(int offset, int pageSize);
 
 }

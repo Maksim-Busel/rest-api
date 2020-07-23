@@ -5,6 +5,7 @@ import com.epam.esm.entity.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -21,13 +22,10 @@ public class UserDto extends RepresentationModel<UserDto>  implements Identifabl
 
     private long id;
 
-    @Pattern(regexp = "^[A-Za-z]([A-Za-z0-9-]{3,18})$")
     private String username;
 
-    @Pattern(regexp = "\\A(?=\\w*[0-9])(?=\\w*[a-z])(?=\\w*[A-Z])\\S{6,25}\\z")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Null
     private List<Role> roles;
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.api.OrderDao;
+import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
@@ -20,21 +21,16 @@ import java.util.List;
 
 @Service
 public class OrderServiceImpl extends AbstractService<Order> implements OrderService {
-    private final Validator<User> userValidator;
     private final OrderValidator orderValidator;
-    private final Validator<Certificate> certificateValidator;
     private final CertificateService certificateService;
     private final OrderDao orderDao;
 
     @Autowired
     public OrderServiceImpl(CertificateService certificateService, OffsetCalculator offsetCalculator,
-                            Validator<User> userValidator, Validator<Certificate> certificateValidator,
                             OrderValidator orderValidator, OrderDao orderDao) {
         super(orderValidator, orderDao, offsetCalculator);
         this.certificateService = certificateService;
-        this.userValidator = userValidator;
         this.orderValidator = orderValidator;
-        this.certificateValidator = certificateValidator;
         this.orderDao = orderDao;
     }
 
@@ -45,24 +41,17 @@ public class OrderServiceImpl extends AbstractService<Order> implements OrderSer
             throw new IncorrectDataException("You don't specify any certificate id");
         }
 
-        long userId = order.getUser().getId();
-        userValidator.validateExistenceEntityById(userId);
-
         BigDecimal priceTotal = certificateService.getCostCertificates(certificatesId);
-        orderValidator.validatePrice(priceTotal);
         order.setPriceTotal(priceTotal);
+        orderValidator.validate(order);
         order.setOrderDate(LocalDate.now());
 
-        Order savedOrder = dao.create(order);
-
-        long orderId = savedOrder.getId();
         for (long concreteCertificateId : certificatesId) {
-            certificateValidator.validateExistenceEntityById(concreteCertificateId);
-
-            orderDao.createCertificateOrders(concreteCertificateId, orderId);
+            Certificate certificate = certificateService.getById(concreteCertificateId);
+            order.addCertificate(certificate);
         }
 
-        return savedOrder;
+        return dao.create(order);
     }
 
     @Override

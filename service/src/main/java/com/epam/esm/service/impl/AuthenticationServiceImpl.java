@@ -27,7 +27,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String login(String username, String password) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
             User user = userService.getByUsername(username);
 
             return jwtTokenProvider.createToken(username, user.getRoles());

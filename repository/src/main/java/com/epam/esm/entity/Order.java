@@ -13,10 +13,14 @@ import java.util.List;
 @AllArgsConstructor
 @Entity(name = "orders")
 @NamedQueries({
-        @NamedQuery(name = "Order.findAll", query = Order.QueryNames.FIND_ALL),
-        @NamedQuery(name = "Order.findById", query = Order.QueryNames.FIND_BY_ID),
-        @NamedQuery(name = "Order.lockById", query = Order.QueryNames.LOCK_BY_ID),
-        @NamedQuery(name = "Order.findAllByUserId", query = Order.QueryNames.FIND_ALL_BY_USER_ID),
+        @NamedQuery(name = Order.QueryNames.FIND_ALL,
+                    query = "SELECT o FROM orders o WHERE lock=false ORDER BY id "),
+        @NamedQuery(name = Order.QueryNames.FIND_BY_ID,
+                    query = "SELECT o FROM orders o WHERE id=:orderId AND lock=false"),
+        @NamedQuery(name = Order.QueryNames.LOCK_BY_ID,
+                    query = "UPDATE orders SET lock=true WHERE id=:orderId"),
+        @NamedQuery(name = Order.QueryNames.FIND_ALL_BY_USER_ID,
+                    query = "SELECT o FROM orders o WHERE user_id=:userId AND lock=false ORDER BY id"),
 })
 public class Order implements Identifable {
 
@@ -39,13 +43,19 @@ public class Order implements Identifable {
     @JoinTable (name = "certificate_orders",
                 joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")},
                 inverseJoinColumns = {@JoinColumn(name = "certificate_id", referencedColumnName = "id")})
-    List<Certificate> certificates;
+    private List<Certificate> certificates;
+
+    public void addCertificate(Certificate certificate){
+        this.certificates.add(certificate);
+        certificate.getOrders().add(this);
+    }
+
 
     public static final class QueryNames {
-        public static final String FIND_BY_ID = "SELECT o FROM orders o WHERE id=:orderId AND lock=false";
-        public static final String FIND_ALL = "SELECT o FROM orders o WHERE lock=false ORDER BY id ";
-        public static final String LOCK_BY_ID = "UPDATE orders SET lock=true WHERE id=:orderId";
-        public static final String FIND_ALL_BY_USER_ID = "SELECT o FROM orders o WHERE user_id=:userId AND lock=false ORDER BY id";
+        public static final String FIND_BY_ID = "Order.findById";
+        public static final String FIND_ALL = "Order.findAll";
+        public static final String LOCK_BY_ID = "Order.lockById";
+        public static final String FIND_ALL_BY_USER_ID = "Order.findAllByUserId";
 
         public QueryNames() {
         }

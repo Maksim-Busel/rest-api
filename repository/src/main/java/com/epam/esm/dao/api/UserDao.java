@@ -11,5 +11,4 @@ public interface UserDao extends Dao<User>{
     User findUserWithLargestAmountOrders(boolean userLockAllowed, boolean orderLockAllowed);
 
     List<User> findAll(int offset, int pageSize);
-
 }

@@ -18,26 +18,11 @@ import java.time.LocalDate;
 public class CertificateDto extends RepresentationModel<CertificateDto> implements Identifable {
 
     private long id;
-
-    @NotBlank
-    @Size(min = 2, max = 70)
     private String name;
-
-    @NotBlank
-    @Size(min = 2, max = 120)
     private String description;
-
-    @DecimalMin(value = "0")
-    @DecimalMax(value = "5000")
     private BigDecimal price;
-
-    @Null
     private LocalDate dateCreation;
-
-    @Null
     private LocalDate dateModification;
-
-    @NotNull
     private CertificateDuration duration;
 
 }

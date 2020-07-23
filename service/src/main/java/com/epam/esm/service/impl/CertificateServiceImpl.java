@@ -4,17 +4,13 @@ import com.epam.esm.dao.api.CertificateDao;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateDuration;
-import com.epam.esm.exception.CertificateParametersException;
-import com.epam.esm.exception.IncorrectDataException;
-import com.epam.esm.exception.ParameterException;
-import com.epam.esm.exception.ThereIsNoSuchCertificateException;
+import com.epam.esm.exception.*;
+import com.epam.esm.service.api.BikeGoodsService;
 import com.epam.esm.service.api.CertificateService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.validator.CertificateValidator;
 import com.epam.esm.validator.Validator;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.stereotype.Service;
@@ -31,14 +27,20 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     private final Validator<BikeGoods> bikeGoodsValidator;
     private final CertificateDao certificateDao;
     private final CertificateValidator certificateValidator;
+    private final BikeGoodsService bikeGoodsService;
+
+    private static final String CERTIFICATE_NAME_FIELD = "certificate name";
+    private static final String DESCRIPTION_FIELD = " description";
 
     @Autowired
     public CertificateServiceImpl(CertificateDao certificateDao, CertificateValidator certificateValidator,
-                                  Validator<BikeGoods> bikeGoodsValidator, OffsetCalculator offsetCalculator) {
+                                  Validator<BikeGoods> bikeGoodsValidator, OffsetCalculator offsetCalculator,
+                                  BikeGoodsService bikeGoodsService) {
         super(certificateValidator, certificateDao, offsetCalculator);
         this.bikeGoodsValidator = bikeGoodsValidator;
         this.certificateValidator = certificateValidator;
         this.certificateDao = certificateDao;
+        this.bikeGoodsService = bikeGoodsService;
     }
 
     @Override
@@ -48,6 +50,26 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
         certificate.setDateCreation(LocalDate.now());
 
         return dao.create(certificate);
+    }
+
+    @Override
+    public Certificate getByName(String certificateName, boolean exceptionIfNotFound) {
+        validator.validateString(certificateName, CERTIFICATE_NAME_FIELD);
+
+        try {
+            return certificateDao.findByName(certificateName);
+        } catch (EmptyResultDataAccessException e) {
+            if (exceptionIfNotFound) {
+                throw new ThereIsNoSuchEntityException("Certificate: " + certificateName + " doesn't exist", e);
+            }
+
+            return null;
+        }
+    }
+
+    @Override
+    public Certificate getByName(String certificateName) {
+        return this.getByName(certificateName, true);
     }
 
     @Override
@@ -70,13 +92,30 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     @Override
     @Transactional
     public Certificate edit(Certificate updatedCertificate) {
-        validator.validate(updatedCertificate);
+        long certificateId = updatedCertificate.getId();
+        validator.validateExistenceEntityById(certificateId);
+        Certificate certificateFromDb = dao.findById(certificateId);
 
-        Certificate originCertificate = getById(updatedCertificate.getId());
-        updatedCertificate.setDateModification(LocalDate.now());
-        updatedCertificate.setDateCreation(originCertificate.getDateCreation());
+        String updatedCertificateName = updatedCertificate.getName().trim();
+        String updatedDescription = updatedCertificate.getDescription();
+        BigDecimal updatedPrice = updatedCertificate.getPrice();
+        CertificateDuration updatedDuration = updatedCertificate.getDuration();
 
-        return certificateDao.update(updatedCertificate);
+        if (certificateFromDb.getName().trim().equals(updatedCertificateName)) {
+            certificateValidator.validateString(updatedDescription, DESCRIPTION_FIELD);
+            certificateValidator.validatePrice(updatedPrice);
+            certificateValidator.validateDuration(updatedDuration);
+        } else {
+            validator.validate(updatedCertificate);
+            certificateFromDb.setName(updatedCertificateName);
+        }
+
+        certificateFromDb.setDescription(updatedDescription);
+        certificateFromDb.setPrice(updatedPrice);
+        certificateFromDb.setDuration(updatedDuration);
+        certificateFromDb.setDateModification(LocalDate.now());
+
+        return certificateFromDb;
     }
 
     @Override
@@ -87,13 +126,14 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
         }
         validator.validateExistenceEntityById(certificateId);
 
-        for (long goodsId : bikeGoodsId) {
-            bikeGoodsValidator.validateExistenceEntityById(goodsId);
-            int result = certificateDao.createCertificateBikeGoods(certificateId, goodsId);
+        Certificate certificateFromDb = dao.findById(certificateId);
+        List<BikeGoods> goodsList = certificateFromDb.getGoods();
 
-            if (result == 0) {
-                throw new CertificateParametersException("Failed to use certificate to purchase goods");
-            }
+        for (long concreteGoodsId : bikeGoodsId) {
+            BikeGoods goodsFromDb = bikeGoodsService.getById(concreteGoodsId);
+
+            certificateValidator.validateForDuplicate(goodsList, goodsFromDb, certificateId);
+            goodsFromDb.addCertificate(certificateFromDb);
         }
     }
 
@@ -126,36 +166,37 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     public Certificate editPart(Certificate updatedCertificate) {
         long certificateId = updatedCertificate.getId();
         validator.validateExistenceEntityById(certificateId);
+        Certificate certificateFromDb = dao.findById(certificateId);
 
-        Certificate certificateForEdit = dao.findById(certificateId);
+        changePartCertificate(certificateFromDb, updatedCertificate);
+        certificateFromDb.setDateModification(LocalDate.now());
 
-        changePartCertificate(certificateForEdit, updatedCertificate);
-        certificateForEdit.setDateModification(LocalDate.now());
-
-        return certificateDao.update(certificateForEdit);
+        return certificateFromDb;
     }
 
-    private void changePartCertificate(Certificate certificateFromDatabase, Certificate changedCertificate) {
+    private void changePartCertificate(Certificate certificateFromDatabase, Certificate updatedCertificate) {
 
-        String name = changedCertificate.getName();
-        if (isNoneBlank(name)) {
-            certificateFromDatabase.setName(name);
+        String updatedName = updatedCertificate.getName();
+        if (isNoneBlank(updatedName)) {
+            certificateValidator.validateExistenceCertificateByName(updatedName);
+            certificateFromDatabase.setName(updatedName);
         }
 
-        String description = changedCertificate.getDescription();
-        if (isNoneBlank(description)) {
-            certificateFromDatabase.setDescription(description);
+        String updatedDescription = updatedCertificate.getDescription();
+        if (isNoneBlank(updatedDescription)) {
+            certificateValidator.validateString(updatedDescription, DESCRIPTION_FIELD);
+            certificateFromDatabase.setDescription(updatedDescription);
         }
 
-        BigDecimal price = changedCertificate.getPrice();
-        if (price != null) {
-            certificateValidator.validatePrice(price);
-            certificateFromDatabase.setPrice(price);
+        BigDecimal updatedPrice = updatedCertificate.getPrice();
+        if (updatedPrice != null) {
+            certificateValidator.validatePrice(updatedPrice);
+            certificateFromDatabase.setPrice(updatedPrice);
         }
 
-        CertificateDuration duration = changedCertificate.getDuration();
-        if (duration != null) {
-            certificateFromDatabase.setDuration(duration);
+        CertificateDuration updatedDuration = updatedCertificate.getDuration();
+        if (updatedDuration != null) {
+            certificateFromDatabase.setDuration(updatedDuration);
         }
     }
 }

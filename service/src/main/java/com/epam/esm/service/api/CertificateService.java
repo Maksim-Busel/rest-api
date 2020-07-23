@@ -10,14 +10,18 @@ public interface CertificateService extends Service<Certificate>{
 
     Certificate add(Certificate certificate);
 
+    Certificate getByName(String certificateName, boolean exceptionIfNotFound);
+
+    Certificate getByName(String certificateName);
+
     List<Certificate> getFilteredList(@RequestParam (required = false) String tagFieldValue,
                                       @RequestParam (required = false) String searchBy,
                                       @RequestParam (required = false) String sortBy,
                                       int pageNumber, int pageSize);
 
-    Certificate edit(Certificate certificate);
-
     void useCertificateBuyBikeGoods(long certificateId, long[] bikeGoodsId);
+
+    Certificate edit(Certificate updatedCertificate);
 
     Certificate editPart(Certificate certificate);
 

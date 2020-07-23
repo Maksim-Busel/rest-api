@@ -14,9 +14,14 @@ import java.util.List;
 @AllArgsConstructor
 @Entity(name = "bike_goods")
 @NamedQueries({
-        @NamedQuery(name = "BikeGoods.findAll", query = BikeGoods.QueryNames.FIND_ALL),
-        @NamedQuery(name = "BikeGoods.findById", query = BikeGoods.QueryNames.FIND_BY_ID),
-        @NamedQuery(name = "BikeGoods.lockById", query = BikeGoods.QueryNames.LOCK_BY_ID)
+        @NamedQuery(name = BikeGoods.QueryNames.FIND_ALL,
+                    query = "SELECT b_g FROM bike_goods b_g WHERE lock=false ORDER BY id"),
+        @NamedQuery(name = BikeGoods.QueryNames.FIND_BY_ID,
+                    query = "SELECT b_g FROM bike_goods b_g WHERE lock=false AND id=:goodsId"),
+        @NamedQuery(name = BikeGoods.QueryNames.FIND_BY_NAME,
+                    query = "SELECT b_g FROM bike_goods b_g WHERE name=:goodsName"),
+        @NamedQuery(name = BikeGoods.QueryNames.LOCK_BY_ID,
+                    query = "UPDATE bike_goods SET lock=true WHERE id=:goodsId")
 })
 public class BikeGoods implements Identifable {
 
@@ -39,13 +44,19 @@ public class BikeGoods implements Identifable {
     @JoinTable(name = "certificate_bike_goods",
             joinColumns = {@JoinColumn(name = "bike_goods_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "certificate_id", referencedColumnName = "id")})
-    List<Certificate> certificates;
+    private List<Certificate> certificates;
 
+
+    public void addCertificate(Certificate certificate){
+        this.certificates.add(certificate);
+        certificate.getGoods().add(this);
+    }
 
     public static final class QueryNames {
-        public static final String FIND_BY_ID = "SELECT b_g FROM bike_goods b_g WHERE lock=false AND id=:goodsId";
-        public static final String FIND_ALL = "SELECT b_g FROM bike_goods b_g WHERE lock=false ORDER BY id";
-        public static final String LOCK_BY_ID = "UPDATE bike_goods SET lock=true WHERE id=:goodsId";
+        public static final String FIND_BY_ID = "BikeGoods.findById";
+        public static final String FIND_BY_NAME = "BikeGoods.findByName";
+        public static final String FIND_ALL = "BikeGoods.findAll";
+        public static final String LOCK_BY_ID = "BikeGoods.lockById";
 
         public QueryNames() {
         }

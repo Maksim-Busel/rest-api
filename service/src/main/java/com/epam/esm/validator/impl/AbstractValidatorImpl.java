@@ -8,7 +8,7 @@ import com.epam.esm.validator.Validator;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class AbstractValidatorImpl<T extends Identifable> implements Validator<T> {
-    private final Service<T> entityService;
+    protected final Service<T> entityService;
 
     private static final int PAGE_NUMBER_MIN = 1;
     private static final int PAGE_NUMBER_MAX = 10_000_000;
@@ -24,7 +24,11 @@ public abstract class AbstractValidatorImpl<T extends Identifable> implements Va
     @Override
     public void validateExistenceEntityById(long id) {
         validateIdValue(id);
-        checkExcitingEntity(id);
+        checkExistenceEntityById(id);
+    }
+
+    private void checkExistenceEntityById(long entityId) {
+        entityService.getById(entityId, true);
     }
 
     @Override
@@ -45,20 +49,16 @@ public abstract class AbstractValidatorImpl<T extends Identifable> implements Va
         validatePageParameter(pageSize, PAGE_SIZE_NAME, PAGE_SIZE_MIN, PAGE_SIZE_MAX);
     }
 
+    private void validatePageParameter(int pageNumber, String parameterName, int minValue, int maxValue) {
+        if (pageNumber < minValue || pageNumber > maxValue) {
+            throw new ParameterException(parameterName + " must be in the range " + minValue + " and " + maxValue);
+        }
+    }
+
     @Override
     public void validateIdValue(long id) {
         if (id < 1) {
             throw new ParameterException("id cannot be 0 or a negative number");
-        }
-    }
-
-    private void checkExcitingEntity(long entityId) {
-        entityService.getById(entityId, true);
-    }
-
-    private void validatePageParameter(int pageNumber, String parameterName, int minValue, int maxValue) {
-        if (pageNumber < minValue || pageNumber > maxValue) {
-            throw new ParameterException(parameterName + " must be in the range " + minValue + " and " + maxValue);
         }
     }
 }

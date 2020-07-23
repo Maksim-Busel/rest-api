@@ -8,4 +8,5 @@ public interface BikeGoodsDao extends Dao<BikeGoods>{
 
     List<BikeGoods> findAll(int offset, int pageSize);
 
+    BikeGoods findByName(String goodsName);
 }

@@ -13,27 +13,19 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
-public class OrderDaoImpl implements OrderDao {
+public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public static final String ADD_CERTIFICATE_ORDERS = "INSERT INTO certificate_orders (certificate_id, order_id) " +
-            "VALUES(:certificateId, :orderId)";
-
     @Autowired
     public OrderDaoImpl(EntityManager entityManager) {
+        super(entityManager);
         this.entityManager = entityManager;
     }
 
     @Override
-    public Order create(Order order) {
-        entityManager.persist(order);
-        return order;
-    }
-
-    @Override
     public Order findById(long id) {
-        TypedQuery<Order> orderQuery = entityManager.createNamedQuery("Order.findById", Order.class);
+        TypedQuery<Order> orderQuery = entityManager.createNamedQuery(Order.QueryNames.FIND_BY_ID, Order.class);
         orderQuery.setParameter("orderId", id);
 
         return orderQuery.getSingleResult();
@@ -41,7 +33,7 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public List<Order> findAll(int offset, int pageSize) {
-        TypedQuery<Order> orderQuery = entityManager.createNamedQuery("Order.findAll", Order.class);
+        TypedQuery<Order> orderQuery = entityManager.createNamedQuery(Order.QueryNames.FIND_ALL, Order.class);
         orderQuery.setFirstResult(offset);
         orderQuery.setMaxResults(pageSize);
 
@@ -50,24 +42,15 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public int lockById(long id) {
-        Query orderQuery = entityManager.createNamedQuery("Order.lockById");
+        Query orderQuery = entityManager.createNamedQuery(Order.QueryNames.LOCK_BY_ID);
         orderQuery.setParameter("orderId", id);
 
         return orderQuery.executeUpdate();
     }
 
     @Override
-    public int createCertificateOrders(long certificateId, long orderId){
-        Query certificateOrdersQuery = entityManager.createNativeQuery(ADD_CERTIFICATE_ORDERS);
-        certificateOrdersQuery.setParameter("certificateId", certificateId);
-        certificateOrdersQuery.setParameter("orderId", orderId);
-
-        return certificateOrdersQuery.executeUpdate();
-    }
-
-    @Override
     public List<Order> findOrdersByUserId(long userId, int offset, int pageSize) {
-        TypedQuery<Order> orderQuery = entityManager.createNamedQuery("Order.findAllByUserId", Order.class);
+        TypedQuery<Order> orderQuery = entityManager.createNamedQuery(Order.QueryNames.FIND_ALL_BY_USER_ID, Order.class);
         orderQuery.setParameter("userId", userId);
         orderQuery.setFirstResult(offset);
         orderQuery.setMaxResults(pageSize);

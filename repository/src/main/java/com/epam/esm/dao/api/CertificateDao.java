@@ -13,11 +13,9 @@ public interface CertificateDao extends Dao<Certificate>{
                                    @RequestParam(required = false) String sortBy,
                                    int offset, int pageSize);
 
-    Certificate update(Certificate certificate);
-
-    int createCertificateBikeGoods(long certificateId, long bikeGoodsId);
-
     List<Certificate> findByTagsId(List<Integer> goodsId, int tagsCount, int offset, int pageSize);
 
     BigDecimal findCostCertificates(List<Integer> certificatesId);
+
+    Certificate findByName(String certificateName);
 }

@@ -15,13 +15,11 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public class CertificateDaoImpl implements CertificateDao {
+public class CertificateDaoImpl extends AbstractDao<Certificate> implements CertificateDao {
     @PersistenceContext
     private final EntityManager entityManager;
     private final CertificateQueryBuilder builder;
 
-    public static final String USE_CERTIFICATE_BUY_BIKE_GOODS = "INSERT INTO certificate_bike_goods " +
-            "(certificate_id, bike_goods_id) VALUES(:certificateId,:bikeGoodsId)";
     private static final String FIND_BY_TAGS_ID = "SELECT c.id, c.name, c.description, c.price, c.date_creation, " +
             "c.date_modification, c.duration FROM certificate c JOIN certificate_bike_goods c_b_g ON id=certificate_id" +
             " WHERE c_b_g.bike_goods_id IN :goodsId AND lock=false GROUP BY id HAVING COUNT(id)=:goodsCount ORDER BY id ";
@@ -30,28 +28,30 @@ public class CertificateDaoImpl implements CertificateDao {
 
     @Autowired
     public CertificateDaoImpl(EntityManager entityManager, CertificateQueryBuilder builder) {
+        super(entityManager);
         this.entityManager = entityManager;
         this.builder = builder;
     }
 
     @Override
-    public Certificate create(Certificate certificate) {
-        entityManager.persist(certificate);
-
-        return certificate;
-    }
-
-    @Override
     public Certificate findById(long id) {
-        TypedQuery<Certificate> certificateQuery = entityManager.createNamedQuery("Certificate.findById", Certificate.class);
+        TypedQuery<Certificate> certificateQuery = entityManager.createNamedQuery(Certificate.QueryNames.FIND_BY_ID, Certificate.class);
         certificateQuery.setParameter("certificateId", id);
 
         return certificateQuery.getSingleResult();
     }
 
     @Override
+    public Certificate findByName(String name) {
+        TypedQuery<Certificate> certificateQuery = entityManager.createNamedQuery(Certificate.QueryNames.FIND_BY_NAME, Certificate.class);
+        certificateQuery.setParameter("certificateName", name);
+
+        return certificateQuery.getSingleResult();
+    }
+
+    @Override
     public int lockById(long id) {
-        Query certificateQuery = entityManager.createNamedQuery("Certificate.lockById");
+        Query certificateQuery = entityManager.createNamedQuery(Certificate.QueryNames.LOCK_BY_ID);
         certificateQuery.setParameter("certificateId", id);
 
         return certificateQuery.executeUpdate();
@@ -66,22 +66,6 @@ public class CertificateDaoImpl implements CertificateDao {
         certificatesQuery.setMaxResults(pageSize);
 
         return certificatesQuery.getResultList();
-    }
-
-    @Override
-    public Certificate update(Certificate certificate) {
-        entityManager.merge(certificate);
-
-        return certificate;
-    }
-
-    @Override
-    public int createCertificateBikeGoods(long certificateId, long bikeGoodsId) {
-        Query certificateBikeGoodsQuery = entityManager.createNativeQuery(USE_CERTIFICATE_BUY_BIKE_GOODS);
-        certificateBikeGoodsQuery.setParameter("certificateId", certificateId);
-        certificateBikeGoodsQuery.setParameter("bikeGoodsId", bikeGoodsId);
-
-        return certificateBikeGoodsQuery.executeUpdate();
     }
 
     @Override

@@ -14,15 +14,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTokenProvider jwtTokenProvider;
 
-    private static final String USER = "USER";
-    private static final String ADMIN = "ADMIN";
-    private static final String REGISTRATION = "/users/registration";
-    private static final String CERTIFICATE_READ_OPERATIONS = "/certificates/info/**";
-    private static final String ALL_OPERATION = "/**";
-    private static final String ALL_READ_OPERATIONS = "/**/info/**";
-    private static final String NEW_ORDER = "/orders";
-    private static final String LOGIN_PAGE = "/auth/login";
-
     @Autowired
     public WebSecurityConfig(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
@@ -32,14 +23,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .httpBasic().disable()
-                    .csrf().disable()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                    .authorizeRequests()
-                    .antMatchers(REGISTRATION, LOGIN_PAGE, CERTIFICATE_READ_OPERATIONS).permitAll()
-                    .antMatchers(ALL_READ_OPERATIONS, NEW_ORDER).hasAnyRole(USER, ADMIN)
-                    .antMatchers(ALL_OPERATION).hasRole(ADMIN)
-                    .anyRequest().authenticated()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .apply(new JwtConfigurer(jwtTokenProvider));
     }

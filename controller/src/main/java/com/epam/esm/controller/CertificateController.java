@@ -1,5 +1,7 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.security.annotation.IsAdmin;
+import com.epam.esm.security.annotation.IsAnyAuthorized;
 import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.dto.CertificateDto;
 import com.epam.esm.entity.Certificate;
@@ -33,6 +35,7 @@ public class CertificateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @IsAdmin
     public CertificateDto add(@RequestBody CertificateDto certificateDto) {
         Certificate certificate = mapper.convertToEntity(certificateDto);
 
@@ -45,8 +48,9 @@ public class CertificateController {
         return certificateDtoFromDb;
     }
 
-    @GetMapping("/info/{id}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public CertificateDto getById(@PathVariable long id) {
         Certificate certificate = service.getById(id);
         CertificateDto certificateDto = mapper.convertToDto(certificate);
@@ -59,6 +63,7 @@ public class CertificateController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @IsAdmin
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
 
@@ -67,6 +72,7 @@ public class CertificateController {
 
     @PostMapping("/{certificateId}/goods-management")
     @ResponseStatus(HttpStatus.CREATED)
+    @IsAdmin
     public List<Link> use(@PathVariable long certificateId, @RequestParam long[] bikeGoodsId) {
         service.useCertificateBuyBikeGoods(certificateId, bikeGoodsId);
 
@@ -74,8 +80,9 @@ public class CertificateController {
     }
 
 
-    @GetMapping("/info/filter")
+    @GetMapping("/filter")
     @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public CollectionModel<CertificateDto> getFilteredList(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                                            @RequestParam(required = false, defaultValue = "10") int pageSize,
                                                            @RequestParam(required = false) String tagFieldValue,
@@ -94,11 +101,12 @@ public class CertificateController {
 
     @PutMapping("/{certificateId}")
     @ResponseStatus(HttpStatus.CREATED)
+    @IsAdmin
     public CertificateDto edit(@RequestBody CertificateDto certificateDto, @PathVariable long certificateId) {
         Certificate certificate = mapper.convertToEntity(certificateDto);
         certificate.setId(certificateId);
 
-        Certificate editedCertificate = service.edit(certificate);
+        Certificate editedCertificate = service.editPart(certificate);
         CertificateDto certificateDtoFromDb = mapper.convertToDto(editedCertificate);
 
         linksCreator.createForSingleEntity(certificateDtoFromDb);
@@ -109,6 +117,7 @@ public class CertificateController {
 
     @PatchMapping("/{certificateId}")
     @ResponseStatus(HttpStatus.CREATED)
+    @IsAdmin
     public CertificateDto editPart(@RequestBody CertificateDto certificateDto, @PathVariable long certificateId) {
         Certificate certificate = mapper.convertToEntity(certificateDto);
         certificate.setId(certificateId);
@@ -122,8 +131,9 @@ public class CertificateController {
         return certificateDtoFromDb;
     }
 
-    @GetMapping("/info/filter-by-tags")
+    @GetMapping("/filter-by-tags")
     @ResponseStatus(HttpStatus.OK)
+    @IsAnyAuthorized
     public CollectionModel<CertificateDto> getByTagsId(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                                        @RequestParam(required = false, defaultValue = "10") int pageSize,
                                                        @RequestParam List<Integer> goodsId) {

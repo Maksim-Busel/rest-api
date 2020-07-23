@@ -13,9 +13,13 @@ public interface UserService extends Service<User> {
 
     User getByUsername(String username);
 
+    User getByUsername(String username, boolean exceptionIfNotFound);
+
     User getUserWithLargestAmountOrders();
 
     User getUserWithLargestAmountOrders(boolean userLockAllowed, boolean orderLockAllowed);
 
     List<User> getAll(int pageNumber, int pageSize);
+
+    User edit(User user);
 }

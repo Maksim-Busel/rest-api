@@ -1,6 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.api.UserDao;
+import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.User;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
-public class UserDaoImpl implements UserDao {
+public class UserDaoImpl extends AbstractDao<User> implements UserDao {
     @PersistenceContext
     private final EntityManager entityManager;
 
@@ -27,19 +28,13 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     public UserDaoImpl(EntityManager entityManager) {
+        super(entityManager);
         this.entityManager = entityManager;
     }
 
     @Override
-    public User create(User user) {
-        entityManager.persist(user);
-
-        return user;
-    }
-
-    @Override
     public User findById(long id) {
-        TypedQuery<User> userQuery = entityManager.createNamedQuery("User.findById", User.class);
+        TypedQuery<User> userQuery = entityManager.createNamedQuery(User.QueryNames.FIND_BY_ID, User.class);
         userQuery.setParameter("userId", id);
 
         return userQuery.getSingleResult();
@@ -47,7 +42,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> findAll(int offset, int pageSize) {
-        TypedQuery<User> userQuery = entityManager.createNamedQuery("User.findAll", User.class);
+        TypedQuery<User> userQuery = entityManager.createNamedQuery(User.QueryNames.FIND_ALL, User.class);
         userQuery.setFirstResult(offset);
         userQuery.setMaxResults(pageSize);
 
@@ -56,7 +51,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public int lockById(long id) {
-        Query userQuery = entityManager.createNamedQuery("User.lockById");
+        Query userQuery = entityManager.createNamedQuery(User.QueryNames.LOCK_BY_ID);
         userQuery.setParameter("userId", id);
 
         return userQuery.executeUpdate();
@@ -64,7 +59,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User findByUsername(String username) {
-        TypedQuery<User> userQuery = entityManager.createNamedQuery("User.findByUsername", User.class);
+        TypedQuery<User> userQuery = entityManager.createNamedQuery(User.QueryNames.FIND_BY_USERNAME, User.class);
         userQuery.setParameter("username", username);
 
         return userQuery.getSingleResult();
