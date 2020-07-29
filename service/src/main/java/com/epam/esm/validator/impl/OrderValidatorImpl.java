@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
-public class OrderValidatorImpl extends AbstractValidatorImpl<Order> implements OrderValidator {
+public class OrderValidatorImpl extends AbstractValidator<Order> implements OrderValidator {
     private final Validator<User> userValidator;
 
     private static final String MAX_PRICE = "50000";

@@ -94,7 +94,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     public Certificate edit(Certificate updatedCertificate) {
         long certificateId = updatedCertificate.getId();
         validator.validateExistenceEntityById(certificateId);
-        Certificate certificateFromDb = dao.findById(certificateId);
+        Certificate certificateFromDb = certificateDao.findById(certificateId);
 
         String updatedCertificateName = updatedCertificate.getName().trim();
         String updatedDescription = updatedCertificate.getDescription();
@@ -147,7 +147,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     }
 
     @Override
-    public List<Certificate> findByTagsId(List<Integer> tagsId, int pageNumber, int pageSize) {
+    public List<Certificate> getByTagsId(List<Integer> tagsId, int pageNumber, int pageSize) {
         int tagsCount = tagsId.size();
         if (tagsCount == 0) {
             throw new IncorrectDataException("You don't specify any tag id");
@@ -166,7 +166,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     public Certificate editPart(Certificate updatedCertificate) {
         long certificateId = updatedCertificate.getId();
         validator.validateExistenceEntityById(certificateId);
-        Certificate certificateFromDb = dao.findById(certificateId);
+        Certificate certificateFromDb = certificateDao.findById(certificateId);
 
         changePartCertificate(certificateFromDb, updatedCertificate);
         certificateFromDb.setDateModification(LocalDate.now());

@@ -50,6 +50,9 @@ public class Order implements Identifable {
         certificate.getOrders().add(this);
     }
 
+    public void setUserId(long userId){
+        user.setId(userId);
+    }
 
     public static final class QueryNames {
         public static final String FIND_BY_ID = "Order.findById";

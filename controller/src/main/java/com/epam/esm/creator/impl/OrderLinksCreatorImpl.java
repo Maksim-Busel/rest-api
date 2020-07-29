@@ -19,7 +19,6 @@ public class OrderLinksCreatorImpl implements LinksCreator<OrderDto> {
     private static final String GET_ORDER = "getOrder";
     private static final String DELETE_ORDER = "deleteOrder";
     private static final String ALL_ORDERS = "allOrders";
-    private static final String CREATE_ORDER = "createOrder";
 
     @Override
     public void createForSingleEntity(OrderDto orderDto) {
@@ -27,8 +26,7 @@ public class OrderLinksCreatorImpl implements LinksCreator<OrderDto> {
         orderDto.add(
                 linkTo(methodOn(OrderController.class).getById(orderId)).withRel(GET_ORDER),
                 linkTo(methodOn(OrderController.class).deleteById(orderId)).withRel(DELETE_ORDER),
-                linkTo(methodOn(OrderController.class).getAll(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(ALL_ORDERS),
-                linkTo(methodOn(OrderController.class).add(new OrderDto())).withRel(CREATE_ORDER)
+                linkTo(methodOn(OrderController.class).getAll(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(ALL_ORDERS)
         );
     }
 
@@ -48,7 +46,6 @@ public class OrderLinksCreatorImpl implements LinksCreator<OrderDto> {
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(OrderController.class).deleteById(orderId)).withSelfRel());
         links.add(linkTo(methodOn(OrderController.class).getById(orderId)).withRel(GET_ORDER));
-        links.add(linkTo(methodOn(OrderController.class).add(new OrderDto())).withRel(CREATE_ORDER));
         links.add(linkTo(methodOn(OrderController.class).getAll(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE)).withRel(ALL_ORDERS));
 
         return links;

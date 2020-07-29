@@ -5,13 +5,17 @@ import com.epam.esm.dto.BikeGoodsDto;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.mapper.Mapper;
 import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsAnyAuthorized;
+import com.epam.esm.security.annotation.IsAuthenticated;
+import com.epam.esm.security.jwt.JwtUser;
 import com.epam.esm.service.api.BikeGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,7 +54,7 @@ public class BikeGoodsController{
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public BikeGoodsDto getById(@PathVariable long id) {
         BikeGoods goods = service.getById(id);
         BikeGoodsDto bikeGoodsDto = mapper.convertToDto(goods);
@@ -63,7 +67,7 @@ public class BikeGoodsController{
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public CollectionModel<BikeGoodsDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                      @RequestParam(required = false, defaultValue = "10") int pageSize) {
         List<BikeGoods> goods = service.getAll(pageNumber, pageSize);

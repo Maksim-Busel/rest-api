@@ -9,13 +9,22 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 @RestControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+public class RestExceptionHandler extends ResponseEntityExceptionHandler{
 
     @ExceptionHandler ({BikeGoodsParametersException.class, CertificateParametersException.class,
                         IncorrectDataException.class, RegistrationException.class, ParameterException.class,
@@ -29,12 +38,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({JwtAuthenticationException.class})
-    public ResponseEntity<Object> handleJwtAuthenticationException(Exception exception, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(exception.getLocalizedMessage(), exception.getClass().toString());
-        return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
-    }
-
     @ExceptionHandler (AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(Exception exception, WebRequest request) {
         String message = "Access is denied. You are not authorized to access this resource.";
@@ -46,6 +49,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleDataIntegrityViolationException(Exception exception, WebRequest request) {
         String message = "Entity with such name already exists.";
         ErrorResponse error = new ErrorResponse(message, exception.getClass().toString());
+        return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler (JwtAuthenticationException.class)
+    public ResponseEntity<Object> handleJwtAuthenticationException(Exception exception, WebRequest request) {
+        ErrorResponse error = new ErrorResponse(exception.getMessage(), exception.getClass().toString());
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 

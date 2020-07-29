@@ -1,9 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.BikeGoodsDto;
-import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsAnyAuthorized;
+import com.epam.esm.security.annotation.IsAuthenticated;
 import com.epam.esm.creator.UserLinksCreator;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
@@ -16,6 +14,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,7 +54,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public UserDto getById(@PathVariable long id) {
         User user = service.getById(id);
         UserDto userDto = userMapper.convertToDto(user);
@@ -68,7 +67,7 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public CollectionModel<UserDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                            @RequestParam(required = false, defaultValue = "10") int pageSize) {
 
@@ -108,7 +107,7 @@ public class UserController {
 
     @GetMapping("/{userId}/orders")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #userId")
     public CollectionModel<OrderDto> getUserOrders(@PathVariable long userId,
                                                    @RequestParam(required = false, defaultValue = "1") int pageNumber,
                                                    @RequestParam(required = false, defaultValue = "10") int pageSize) {
@@ -124,7 +123,7 @@ public class UserController {
 
     @GetMapping("/filter-user-largest-cost-orders")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public UserDto getUserWithLargestAmountOrders(){
         User user = service.getUserWithLargestAmountOrders();
         UserDto userDto = userMapper.convertToDto(user);

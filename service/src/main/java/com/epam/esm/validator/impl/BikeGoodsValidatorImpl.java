@@ -2,7 +2,6 @@ package com.epam.esm.validator.impl;
 
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.BikeGoodsType;
-import com.epam.esm.entity.User;
 import com.epam.esm.exception.BikeGoodsParametersException;
 import com.epam.esm.exception.ParameterException;
 import com.epam.esm.exception.PriceException;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
-public class BikeGoodsValidatorImpl extends AbstractValidatorImpl<BikeGoods> implements BikeGoodsValidator {
+public class BikeGoodsValidatorImpl extends AbstractValidator<BikeGoods> implements BikeGoodsValidator {
     private final BikeGoodsService bikeGoodsService;
 
     private static final String NAME = "name";
@@ -39,7 +38,8 @@ public class BikeGoodsValidatorImpl extends AbstractValidatorImpl<BikeGoods> imp
         validateBikeGoodsType(type);
     }
 
-    private void validateExistenceBikeGoodsByName(String goodsName) {
+    @Override
+    public void validateExistenceBikeGoodsByName(String goodsName) {
         BikeGoods goods = bikeGoodsService.getByName(goodsName.trim(), false);
 
         if (goods != null) {

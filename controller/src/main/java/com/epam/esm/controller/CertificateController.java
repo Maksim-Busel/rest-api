@@ -1,7 +1,6 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsAnyAuthorized;
 import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.dto.CertificateDto;
 import com.epam.esm.entity.Certificate;
@@ -50,7 +49,6 @@ public class CertificateController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
     public CertificateDto getById(@PathVariable long id) {
         Certificate certificate = service.getById(id);
         CertificateDto certificateDto = mapper.convertToDto(certificate);
@@ -82,7 +80,6 @@ public class CertificateController {
 
     @GetMapping("/filter")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
     public CollectionModel<CertificateDto> getFilteredList(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                                            @RequestParam(required = false, defaultValue = "10") int pageSize,
                                                            @RequestParam(required = false) String tagFieldValue,
@@ -133,12 +130,11 @@ public class CertificateController {
 
     @GetMapping("/filter-by-tags")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
     public CollectionModel<CertificateDto> getByTagsId(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                                        @RequestParam(required = false, defaultValue = "10") int pageSize,
                                                        @RequestParam List<Integer> goodsId) {
 
-        List<Certificate> certificates = service.findByTagsId(goodsId, pageNumber, pageSize);
+        List<Certificate> certificates = service.getByTagsId(goodsId, pageNumber, pageSize);
         List<CertificateDto> certificatesDto = mapper.convertAllToDto(certificates);
 
         linksCreator.createForListEntities(certificatesDto);

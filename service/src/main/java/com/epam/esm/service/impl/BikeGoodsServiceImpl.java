@@ -3,6 +3,7 @@ package com.epam.esm.service.impl;
 import com.epam.esm.dao.api.BikeGoodsDao;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.BikeGoodsType;
+import com.epam.esm.exception.ThereIsNoSuchBikeGoodsException;
 import com.epam.esm.exception.ThereIsNoSuchUserException;
 import com.epam.esm.service.api.BikeGoodsService;
 import com.epam.esm.util.OffsetCalculator;
@@ -41,7 +42,7 @@ public class BikeGoodsServiceImpl extends AbstractService<BikeGoods> implements 
             return bikeGoodsDao.findByName(goodsName);
         } catch (EmptyResultDataAccessException e) {
             if (exceptionIfNotFound) {
-                throw new ThereIsNoSuchUserException("Goods: " + goodsName + " not found", e);
+                throw new ThereIsNoSuchBikeGoodsException("Goods: " + goodsName + " not found", e);
             }
 
             return null;

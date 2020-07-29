@@ -3,12 +3,10 @@ package com.epam.esm.validator.impl;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateDuration;
-import com.epam.esm.entity.User;
 import com.epam.esm.exception.CertificateParametersException;
 import com.epam.esm.exception.ParameterException;
 import com.epam.esm.exception.PriceException;
 import com.epam.esm.service.api.CertificateService;
-import com.epam.esm.service.api.Service;
 import com.epam.esm.validator.CertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -18,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Component
-public class CertificateValidatorImpl extends AbstractValidatorImpl<Certificate> implements CertificateValidator {
+public class CertificateValidatorImpl extends AbstractValidator<Certificate> implements CertificateValidator {
     private final CertificateService certificateService;
 
     private static final String NAME = "name";

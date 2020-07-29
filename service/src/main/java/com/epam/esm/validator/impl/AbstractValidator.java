@@ -7,7 +7,7 @@ import com.epam.esm.validator.Validator;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public abstract class AbstractValidatorImpl<T extends Identifable> implements Validator<T> {
+public abstract class AbstractValidator<T extends Identifable> implements Validator<T> {
     protected final Service<T> entityService;
 
     private static final int PAGE_NUMBER_MIN = 1;
@@ -17,7 +17,7 @@ public abstract class AbstractValidatorImpl<T extends Identifable> implements Va
     private static final String PAGE_SIZE_NAME = "Page size";
     private static final String PAGE_NUMBER_NAME = "Page number";
 
-    protected AbstractValidatorImpl(Service<T> entityService) {
+    protected AbstractValidator(Service<T> entityService) {
         this.entityService = entityService;
     }
 
@@ -49,8 +49,8 @@ public abstract class AbstractValidatorImpl<T extends Identifable> implements Va
         validatePageParameter(pageSize, PAGE_SIZE_NAME, PAGE_SIZE_MIN, PAGE_SIZE_MAX);
     }
 
-    private void validatePageParameter(int pageNumber, String parameterName, int minValue, int maxValue) {
-        if (pageNumber < minValue || pageNumber > maxValue) {
+    private void validatePageParameter(int pageParameter, String parameterName, int minValue, int maxValue) {
+        if (pageParameter < minValue || pageParameter > maxValue) {
             throw new ParameterException(parameterName + " must be in the range " + minValue + " and " + maxValue);
         }
     }

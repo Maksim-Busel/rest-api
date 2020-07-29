@@ -58,6 +58,4 @@ public class AbstractService<T extends Identifable> implements Service<T> {
             throw new FailedOperationException("Failed to delete entity " + id);
         }
     }
-
-
 }

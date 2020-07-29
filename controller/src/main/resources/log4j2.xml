@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="CONSOLE_LOGGER">????</Property>
+        <Property name="LOG_PATTERN">%d %-5p [%t] %c{10} - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.epam" level="debug" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="CONSOLE"/>
+        </Root>
+    </Loggers>
+</Configuration>

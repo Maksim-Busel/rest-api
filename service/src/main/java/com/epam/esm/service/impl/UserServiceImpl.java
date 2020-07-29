@@ -110,7 +110,7 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 
     @Override
     public User getUserWithLargestAmountOrders() {
-        return userDao.findUserWithLargestAmountOrders(false, false);
+        return this.getUserWithLargestAmountOrders(false, false);
     }
 
     @Override

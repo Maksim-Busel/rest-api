@@ -27,5 +27,5 @@ public interface CertificateService extends Service<Certificate>{
 
     BigDecimal getCostCertificates(List<Integer> certificatesId);
 
-    List<Certificate> findByTagsId(List<Integer> goodsId, int pageNumber, int pageSize);
+    List<Certificate> getByTagsId(List<Integer> goodsId, int pageNumber, int pageSize);
 }

@@ -1,9 +1,7 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.dto.BikeGoodsDto;
-import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsAnyAuthorized;
+import com.epam.esm.security.annotation.IsAuthenticated;
 import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.entity.Order;
@@ -14,6 +12,8 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,25 +35,26 @@ public class OrderController {
         this.linksCreator = linksCreator;
     }
 
-    @PostMapping
+    @PostMapping("/user/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    @IsAnyAuthorized
-    public OrderDto add(@RequestBody final OrderDto orderDto) {
+    @PreAuthorize("authentication.principal.id == #userId")
+    public OrderDto add(@RequestBody final OrderDto orderDto, @PathVariable long userId) {
         Order order = mapper.convertToEntity(orderDto);
+        order.setUserId(userId);
         List<Integer> certificatesId = orderDto.getCertificatesId();
 
         Order addedOrder = service.add(order, certificatesId);
         OrderDto orderDtoFromDb = mapper.convertToDto(addedOrder);
 
         linksCreator.createForSingleEntity(orderDtoFromDb);
-        orderDtoFromDb.add(linkTo(methodOn(OrderController.class).add(orderDto)).withSelfRel());
+        orderDtoFromDb.add(linkTo(methodOn(OrderController.class).add(orderDto, userId)).withSelfRel());
 
         return orderDtoFromDb;
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public OrderDto getById(@PathVariable long id) {
         Order order = service.getById(id);
         OrderDto orderDto = mapper.convertToDto(order);
@@ -66,7 +67,7 @@ public class OrderController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @IsAnyAuthorized
+    @IsAuthenticated
     public CollectionModel<OrderDto> getAll(@RequestParam(required = false, defaultValue = "1") int pageNumber,
                                             @RequestParam(required = false, defaultValue = "10") int pageSize) {
         List<Order> orders = service.getAll(pageNumber, pageSize);

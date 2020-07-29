@@ -44,7 +44,6 @@ public class User implements Identifable{
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
 
-
     public static final class QueryNames {
         public static final String FIND_BY_ID = "User.findById";
         public static final String FIND_ALL = "User.findAll";

@@ -10,11 +10,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserValidatorImpl extends AbstractValidatorImpl<User> implements UserValidator {
+public class UserValidatorImpl extends AbstractValidator<User> implements UserValidator {
     private final UserService userService;
 
-    private static final String PASSWORD_PATTERN = "\\A(?=\\w*[0-9])(?=\\w*[a-z])(?=\\w*[A-Z])\\S{6,25}\\z";
-    private static final String LOGIN_PATTERN = "^[A-Za-z]([A-Za-z0-9-]{3,18})$";
+    private static final String PASSWORD_PATTERN = "\\A(?=\\w*[0-9])(?=\\w*[a-z])(?=\\w*[A-Z])\\S{6,25}\\Z";
+    private static final String LOGIN_PATTERN = "^[A-Za-z]([A-Za-z0-9]{3,18})$";
 
     @Autowired
     public UserValidatorImpl(@Lazy UserService userService) {
@@ -32,14 +32,16 @@ public class UserValidatorImpl extends AbstractValidatorImpl<User> implements Us
         validatePassword(password);
     }
 
-    private void validateUsername(String username) {
+    @Override
+    public void validateUsername(String username) {
         if (!username.matches(LOGIN_PATTERN)) {
             throw new RegistrationException("Invalid login. Login can contain only letters and numbers." +
                     "There must be at least one letter. Login must be between 4-25 characters.");
         }
     }
 
-    private void validateExistenceUserByUsername(String username) {
+    @Override
+    public void validateExistenceUserByUsername(String username) {
         User user = userService.getByUsername(username, false);
 
         if (user != null) {
@@ -51,8 +53,8 @@ public class UserValidatorImpl extends AbstractValidatorImpl<User> implements Us
     public void validatePassword(String password) {
 
         if (!password.matches(PASSWORD_PATTERN)) {
-            throw new RegistrationException("Invalid password. Password can contain only letters and numbers. " +
-                    "There must be at least one uppercase letter and 1 digit. " +
+            throw new RegistrationException("Invalid password. Password can contain spaces. " +
+                    "There must be at least one uppercase and one lowercase letter and 1 digit. " +
                     "Password must be between 6-25 characters.");
         }
     }

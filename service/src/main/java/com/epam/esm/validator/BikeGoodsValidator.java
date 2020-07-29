@@ -10,4 +10,6 @@ public interface BikeGoodsValidator extends Validator<BikeGoods>{
     void validatePrice(BigDecimal price);
 
     void validateBikeGoodsType(BikeGoodsType type);
+
+    void validateExistenceBikeGoodsByName(String goodsName);
 }
