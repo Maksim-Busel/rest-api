@@ -19,7 +19,6 @@ public class OffsetCalculatorTest {
 
     @Test
     public void calculateWhenPageNumberOneAndPageSizeTenShouldReturnZero(){
-        System.out.println("check jenkins");
         int pageNumber = 1;
         int pageSize = 10;
         int offsetExpected = 0;
