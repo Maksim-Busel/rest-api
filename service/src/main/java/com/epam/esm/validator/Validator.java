@@ -15,4 +15,6 @@ public interface Validator <T extends Identifable>{
     void validatePageParameters(int pageNumber, int pageSize);
 
     void validateExistenceEntityById(long entityId);
+
+    boolean isAdmin();
 }

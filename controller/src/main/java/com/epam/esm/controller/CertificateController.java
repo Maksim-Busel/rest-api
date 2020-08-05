@@ -60,7 +60,7 @@ public class CertificateController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @IsAdmin
     public List<Link> deleteById(@PathVariable long id) {
         service.lock(id);
@@ -103,7 +103,7 @@ public class CertificateController {
         Certificate certificate = mapper.convertToEntity(certificateDto);
         certificate.setId(certificateId);
 
-        Certificate editedCertificate = service.editPart(certificate);
+        Certificate editedCertificate = service.edit(certificate);
         CertificateDto certificateDtoFromDb = mapper.convertToDto(editedCertificate);
 
         linksCreator.createForSingleEntity(certificateDtoFromDb);

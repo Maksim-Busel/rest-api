@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -76,7 +75,7 @@ public class CertificateServiceImplTest {
 
         certificateService.add(certificateForTest);
 
-        Assert.assertEquals(LocalDate.now(), certificateForTest.getDateCreation());
+        Assert.assertEquals(LocalDate.now(), certificateForTest.getСreationDate());
     }
 
     @Test

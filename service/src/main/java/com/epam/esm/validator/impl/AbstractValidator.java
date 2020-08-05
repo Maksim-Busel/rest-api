@@ -4,6 +4,8 @@ import com.epam.esm.entity.Identifable;
 import com.epam.esm.exception.ParameterException;
 import com.epam.esm.service.api.Service;
 import com.epam.esm.validator.Validator;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -16,6 +18,7 @@ public abstract class AbstractValidator<T extends Identifable> implements Valida
     private static final int PAGE_SIZE_MAX = 100;
     private static final String PAGE_SIZE_NAME = "Page size";
     private static final String PAGE_NUMBER_NAME = "Page number";
+    private static final String ADMIN = "ROLE_ADMIN";
 
     protected AbstractValidator(Service<T> entityService) {
         this.entityService = entityService;
@@ -60,5 +63,12 @@ public abstract class AbstractValidator<T extends Identifable> implements Valida
         if (id < 1) {
             throw new ParameterException("id cannot be 0 or a negative number");
         }
+    }
+
+    public boolean isAdmin(){
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .contains(new SimpleGrantedAuthority(ADMIN));
     }
 }

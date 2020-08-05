@@ -80,7 +80,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @IsAdmin
     public List<Link> deleteById(@PathVariable long id) {
         service.getById(id);

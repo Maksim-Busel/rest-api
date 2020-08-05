@@ -9,8 +9,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode(of = {"name","description", "price","duration","dateCreation"})
-@ToString(of = {"id","name","description", "price","duration","dateCreation"})
+@EqualsAndHashCode(of = {"name","description", "price","duration","creationDate"})
+@ToString(of = {"id","name","description", "price","duration","creationDate"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "certificate")
@@ -43,10 +43,10 @@ public class Certificate implements Identifable {
     private CertificateDuration duration;
 
     @Column(name = "date_creation")
-    private LocalDate dateCreation;
+    private LocalDate creationDate;
 
     @Column(name = "date_modification")
-    private LocalDate dateModification;
+    private LocalDate modificationDate;
 
     @ManyToMany(mappedBy = "certificates", fetch = FetchType.LAZY)
     private List<BikeGoods> goods;

@@ -47,7 +47,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     @Transactional
     public Certificate add(Certificate certificate) {
         certificateValidator.validate(certificate);
-        certificate.setDateCreation(LocalDate.now());
+        certificate.setСreationDate(LocalDate.now());
 
         return dao.create(certificate);
     }
@@ -113,7 +113,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
         certificateFromDb.setDescription(updatedDescription);
         certificateFromDb.setPrice(updatedPrice);
         certificateFromDb.setDuration(updatedDuration);
-        certificateFromDb.setDateModification(LocalDate.now());
+        certificateFromDb.setModificationDate(LocalDate.now());
 
         return certificateFromDb;
     }
@@ -169,7 +169,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
         Certificate certificateFromDb = certificateDao.findById(certificateId);
 
         changePartCertificate(certificateFromDb, updatedCertificate);
-        certificateFromDb.setDateModification(LocalDate.now());
+        certificateFromDb.setModificationDate(LocalDate.now());
 
         return certificateFromDb;
     }
