@@ -24,7 +24,7 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<start-class>com.epam.esm.RestApplication</start-class>
+		<start-class>com.epam.com.epam.esm.RestApplication</start-class>
 	</properties>
 
 	<dependencies>
