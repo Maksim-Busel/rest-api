@@ -47,7 +47,7 @@ public class CertificateServiceImpl extends AbstractService<Certificate> impleme
     @Transactional
     public Certificate add(Certificate certificate) {
         certificateValidator.validate(certificate);
-        certificate.setСreationDate(LocalDate.now());
+        certificate.setCreationDate(LocalDate.now());
 
         return dao.create(certificate);
     }

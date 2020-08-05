@@ -11,6 +11,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 public class RestApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(new Class<?>[]{RestApplication.class, SpringConfig.class, WebSecurityConfig.class}, args);
+		SpringApplication.run(RestApplication.class);
 	}
 }

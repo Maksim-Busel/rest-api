@@ -4,7 +4,10 @@ import com.epam.esm.dao.api.CertificateDao;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateDuration;
-import com.epam.esm.exception.*;
+import com.epam.esm.exception.IncorrectDataException;
+import com.epam.esm.exception.ParameterException;
+import com.epam.esm.exception.ThereIsNoSuchCertificateException;
+import com.epam.esm.exception.ThereIsNoSuchEntityException;
 import com.epam.esm.service.api.BikeGoodsService;
 import com.epam.esm.service.impl.CertificateServiceImpl;
 import com.epam.esm.util.OffsetCalculator;
@@ -24,7 +27,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -75,7 +77,7 @@ public class CertificateServiceImplTest {
 
         certificateService.add(certificateForTest);
 
-        Assert.assertEquals(LocalDate.now(), certificateForTest.getСreationDate());
+        Assert.assertEquals(LocalDate.now(), certificateForTest.getCreationDate());
     }
 
     @Test
