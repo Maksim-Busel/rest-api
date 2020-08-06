@@ -2,7 +2,6 @@ package com.epam.esm.service;
 
 import com.epam.esm.entity.Role;
 import com.epam.esm.entity.User;
-import com.epam.esm.exception.AuthenticationDataException;
 import com.epam.esm.security.jwt.JwtTokenProvider;
 import com.epam.esm.service.api.AuthenticationService;
 import com.epam.esm.service.api.UserService;
@@ -13,8 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 
 import java.util.ArrayList;
 import java.util.List;

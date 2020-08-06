@@ -6,16 +6,12 @@ import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.mapper.Mapper;
 import com.epam.esm.security.annotation.IsAdmin;
 import com.epam.esm.security.annotation.IsAuthenticated;
-import com.epam.esm.security.jwt.JwtUser;
 import com.epam.esm.service.api.BikeGoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

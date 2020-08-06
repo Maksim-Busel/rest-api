@@ -3,7 +3,6 @@ package com.epam.esm.service;
 import com.epam.esm.dao.api.BikeGoodsDao;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.exception.FailedOperationException;
-import com.epam.esm.exception.ThereIsNoSuchBikeGoodsException;
 import com.epam.esm.exception.ThereIsNoSuchEntityException;
 import com.epam.esm.service.impl.AbstractService;
 import com.epam.esm.service.impl.BikeGoodsServiceImpl;

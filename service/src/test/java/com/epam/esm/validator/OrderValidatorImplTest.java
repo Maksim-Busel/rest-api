@@ -1,12 +1,8 @@
 package com.epam.esm.validator;
 
-import com.epam.esm.entity.BikeGoods;
-import com.epam.esm.entity.BikeGoodsType;
-import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.PriceException;
 import com.epam.esm.service.api.OrderService;
-import com.epam.esm.validator.impl.BikeGoodsValidatorImpl;
 import com.epam.esm.validator.impl.OrderValidatorImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +11,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrderValidatorImplTest {

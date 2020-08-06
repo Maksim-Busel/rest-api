@@ -3,7 +3,6 @@ package com.epam.esm.validator;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.BikeGoodsType;
 import com.epam.esm.exception.BikeGoodsParametersException;
-import com.epam.esm.exception.ParameterException;
 import com.epam.esm.exception.PriceException;
 import com.epam.esm.service.api.BikeGoodsService;
 import com.epam.esm.validator.impl.BikeGoodsValidatorImpl;
@@ -15,7 +14,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -8,9 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-
 public class AbstractValidatorTest {
     private AbstractValidator abstractValidator;
     @Mock

@@ -2,10 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.dao.api.RoleDao;
 import com.epam.esm.dao.api.UserDao;
-import com.epam.esm.entity.BikeGoods;
-import com.epam.esm.entity.BikeGoodsType;
 import com.epam.esm.entity.User;
-import com.epam.esm.exception.ThereIsNoSuchBikeGoodsException;
 import com.epam.esm.exception.ThereIsNoSuchUserException;
 import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
@@ -20,8 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import java.math.BigDecimal;
 
 import static org.mockito.Mockito.*;
 

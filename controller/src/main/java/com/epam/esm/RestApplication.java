@@ -1,7 +1,5 @@
 package com.epam.esm;
 
-import com.epam.esm.config.SpringConfig;
-import com.epam.esm.config.WebSecurityConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

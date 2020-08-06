@@ -1,9 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.api.UserDao;
-import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.User;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

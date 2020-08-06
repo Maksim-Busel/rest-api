@@ -1,10 +1,10 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.security.annotation.IsAdmin;
 import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.dto.CertificateDto;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.mapper.Mapper;
+import com.epam.esm.security.annotation.IsAdmin;
 import com.epam.esm.service.api.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;

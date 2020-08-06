@@ -10,7 +10,6 @@ import com.epam.esm.service.api.OrderService;
 import com.epam.esm.service.api.UserService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.validator.UserValidator;
-import com.epam.esm.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

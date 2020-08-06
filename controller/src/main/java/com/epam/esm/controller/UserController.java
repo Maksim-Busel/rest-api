@@ -1,13 +1,13 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsAuthenticated;
 import com.epam.esm.creator.UserLinksCreator;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.User;
 import com.epam.esm.mapper.Mapper;
+import com.epam.esm.security.annotation.IsAdmin;
+import com.epam.esm.security.annotation.IsAuthenticated;
 import com.epam.esm.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;

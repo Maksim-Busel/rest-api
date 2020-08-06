@@ -4,11 +4,9 @@ import com.epam.esm.dao.api.BikeGoodsDao;
 import com.epam.esm.entity.BikeGoods;
 import com.epam.esm.entity.BikeGoodsType;
 import com.epam.esm.exception.ThereIsNoSuchBikeGoodsException;
-import com.epam.esm.exception.ThereIsNoSuchUserException;
 import com.epam.esm.service.api.BikeGoodsService;
 import com.epam.esm.util.OffsetCalculator;
 import com.epam.esm.validator.BikeGoodsValidator;
-import com.epam.esm.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -16,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import static org.apache.commons.lang3.StringUtils.isNoneBlank;
 
 @Service
 public class BikeGoodsServiceImpl extends AbstractService<BikeGoods> implements BikeGoodsService {

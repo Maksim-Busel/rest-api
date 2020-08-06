@@ -1,18 +1,17 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.security.annotation.IsAdmin;
-import com.epam.esm.security.annotation.IsAuthenticated;
 import com.epam.esm.creator.LinksCreator;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.entity.Order;
 import com.epam.esm.mapper.Mapper;
+import com.epam.esm.security.annotation.IsAdmin;
+import com.epam.esm.security.annotation.IsAuthenticated;
 import com.epam.esm.service.api.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

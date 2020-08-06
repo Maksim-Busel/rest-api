@@ -1,6 +1,5 @@
 package com.epam.esm.config;
 
-import com.epam.esm.handler.RestExceptionHandler;
 import com.epam.esm.security.jwt.JwtConfigurer;
 import com.epam.esm.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +9,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
