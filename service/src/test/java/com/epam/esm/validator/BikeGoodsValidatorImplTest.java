@@ -71,7 +71,6 @@ public class BikeGoodsValidatorImplTest {
     public void validateExistenceBikeGoodsByNameWhenGoodsWithSuchNameNoExistShouldEndWithoutError() {
         String goodsName = goods.getName();
         boolean exceptionIfNotFound = false;
-        when(bikeGoodsService.getByName(goodsName)).thenReturn(null);
 
         bikeGoodsValidator.validateExistenceBikeGoodsByName(goodsName);
         verify(bikeGoodsService, times(1)).getByName(goodsName, exceptionIfNotFound);
